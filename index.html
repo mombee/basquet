@@ -12,6 +12,9 @@
             background-color: #050505; 
             color: #f8fafc; 
             overflow-x: hidden;
+            background-image: radial-gradient(circle at 15% 0%, transparent, transparent), radial-gradient(circle at 85% 100%, transparent, transparent);
+            background-attachment: fixed;
+            transition: background-image 1.5s ease;
         }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -173,6 +176,14 @@
             <div class="mt-8 bg-[#111] p-6 rounded-2xl border border-[#222]">
                 <h3 id="t-firstteam-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Primer Equipo</h3>
                 <div id="initial-team-list" class="flex flex-wrap justify-center gap-4">
+                    <!-- Items inyectados via JS -->
+                </div>
+            </div>
+
+            <!-- SECCIÓN: Velocidad de Carrera -->
+            <div class="mt-8 bg-[#111] p-6 rounded-2xl border border-[#222]">
+                <h3 id="t-speed-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Velocidad de Carrera</h3>
+                <div id="speed-list" class="flex flex-wrap justify-center gap-4">
                     <!-- Items inyectados via JS -->
                 </div>
             </div>
@@ -375,6 +386,9 @@
                 creationTitle: "Definí tu identidad", identityLbl: "Identidad", lastNameLbl: "Apellido",
                 numberLbl: "Número", handLbl: "Mano Hábil", nationalityLbl: "Nacionalidad",
                 positionLbl: "Posición", firstTeamLbl: "Primer Equipo", confirmBtn: "Confirmar Identidad",
+                speedLbl: "Velocidad de Carrera", speedYear: "Temporada a Temporada", speedYearDesc: "Vivís cada año en detalle",
+                speed2: "Año por Medio", speed2Desc: "Simula de a 2 años", speed3: "Cada 3 Años", speed3Desc: "Carrera rápida y dinámica",
+                autoYearToast: "Año auto-jugado",
                 ageLbl: "Edad", playerLbl: "Jugador", bankLbl: "Cuenta Bancaria", gpLbl: "PJ", ptsLbl: "PTS",
                 astLbl: "AST", shopLbl: "Tienda", followersLbl: "Seguidores", chemLbl: "Química del Equipo",
                 retireBtn: "Anunciar Retiro", thAge: "EDAD", thClub: "CLUB", thGp: "PJ", retTitle: "Retiro Oficial",
@@ -383,6 +397,7 @@
                 shopTitle: "Estilo de Vida & Mejoras", handL: "Izq", handR: "Der",
                 chemToxic: "Egoísta / Tóxico", chemLeader: "Líder de Equipo", chemBalanced: "Balanceado",
                 marketTitle: "Mercado de pases", marketDesc: "Fin de temporada. ¿Qué harás?",
+                retireOptionLabel: "Opción final", retireOptionName: "Anunciar el Retiro", retireOptionDesc: "Colgar los botines definitivamente",
                 simTitle: "Simulando...", simDesc: "Preparando la siguiente etapa.",
                 mgTitle: "Tiro Libre Crucial", mgDesc: "Mueve el mouse para ángulo. Clic para fijar. Clic para tirar.",
                 noTitles: "Sin títulos aún."
@@ -391,6 +406,9 @@
                 creationTitle: "Define your identity", identityLbl: "Identity", lastNameLbl: "Last Name",
                 numberLbl: "Number", handLbl: "Strong Hand", nationalityLbl: "Nationality",
                 positionLbl: "Position", firstTeamLbl: "First Team", confirmBtn: "Confirm Identity",
+                speedLbl: "Career Speed", speedYear: "Season by Season", speedYearDesc: "Live every year in detail",
+                speed2: "Every Other Year", speed2Desc: "Simulates 2 years at a time", speed3: "Every 3 Years", speed3Desc: "Fast, dynamic career",
+                autoYearToast: "Year auto-played",
                 ageLbl: "Age", playerLbl: "Player", bankLbl: "Bank Account", gpLbl: "GP", ptsLbl: "PTS",
                 astLbl: "AST", shopLbl: "Shop", followersLbl: "Followers", chemLbl: "Team Chemistry",
                 retireBtn: "Announce Retirement", thAge: "AGE", thClub: "CLUB", thGp: "GP", retTitle: "Official Retirement",
@@ -399,6 +417,7 @@
                 shopTitle: "Lifestyle & Upgrades", handL: "Left", handR: "Right",
                 chemToxic: "Selfish / Toxic", chemLeader: "Team Leader", chemBalanced: "Balanced",
                 marketTitle: "Transfer Market", marketDesc: "End of season. What's next?",
+                retireOptionLabel: "Final Option", retireOptionName: "Announce Retirement", retireOptionDesc: "Hang up the sneakers for good",
                 simTitle: "Simulating...", simDesc: "Preparing next stage.",
                 mgTitle: "Crucial Free Throw", mgDesc: "Move mouse for angle. Click to lock. Click to shoot.",
                 noTitles: "No titles yet."
@@ -407,6 +426,9 @@
                 creationTitle: "Defina sua identidade", identityLbl: "Identidade", lastNameLbl: "Sobrenome",
                 numberLbl: "Número", handLbl: "Mão Boa", nationalityLbl: "Nacionalidade",
                 positionLbl: "Posição", firstTeamLbl: "Primeiro Time", confirmBtn: "Confirmar Identidade",
+                speedLbl: "Velocidade da Carreira", speedYear: "Temporada a Temporada", speedYearDesc: "Viva cada ano em detalhe",
+                speed2: "Ano Sim, Ano Não", speed2Desc: "Simula de 2 em 2 anos", speed3: "A Cada 3 Anos", speed3Desc: "Carreira rápida e dinâmica",
+                autoYearToast: "Ano auto-jogado",
                 ageLbl: "Idade", playerLbl: "Jogador", bankLbl: "Conta Bancária", gpLbl: "J", ptsLbl: "PTS",
                 astLbl: "AST", shopLbl: "Loja", followersLbl: "Seguidores", chemLbl: "Química do Time",
                 retireBtn: "Anunciar Aposentadoria", thAge: "IDADE", thClub: "CLUBE", thGp: "J", retTitle: "Aposentadoria Oficial",
@@ -415,6 +437,7 @@
                 shopTitle: "Estilo de Vida e Melhorias", handL: "Esq", handR: "Dir",
                 chemToxic: "Egoísta / Tóxico", chemLeader: "Líder da Equipe", chemBalanced: "Equilibrado",
                 marketTitle: "Mercado de Transferências", marketDesc: "Fim da temporada. E agora?",
+                retireOptionLabel: "Opção final", retireOptionName: "Anunciar Aposentadoria", retireOptionDesc: "Pendurar as chuteiras de vez",
                 simTitle: "Simulando...", simDesc: "Preparando a próxima fase.",
                 mgTitle: "Lance Livre Crucial", mgDesc: "Mova o mouse para ângulo. Clique para fixar. Clique para lançar.",
                 noTitles: "Sem títulos ainda."
@@ -439,6 +462,8 @@
             document.getElementById('t-nationality-lbl').innerText = t.nationalityLbl;
             document.getElementById('t-position-lbl').innerText = t.positionLbl;
             document.getElementById('t-firstteam-lbl').innerText = t.firstTeamLbl;
+            document.getElementById('t-speed-lbl').innerText = t.speedLbl;
+            renderSpeedOptions();
             document.getElementById('t-confirm-btn').innerText = t.confirmBtn;
             
             document.getElementById('t-age-lbl').innerText = t.ageLbl;
@@ -510,6 +535,30 @@
             'URU': { base: '#FFFFFF', trim: '#75AADB', collar: '#75AADB', text: '#75AADB' },
             'PHI': { base: '#0038A8', trim: '#CE1126', collar: '#FCD116', text: '#FCD116' }
         };
+
+        // Colores de acento por país, usados para el fondo dinámico según la LIGA donde juega el jugador
+        const dbCountryTheme = {
+            'ARG': '#75AADB', 'ESP': '#FFC400', 'USA': '#3B82F6', 'BRA': '#009739',
+            'FRA': '#0055A4', 'SRB': '#C6363C', 'GRE': '#0D5EAF', 'ITA': '#0066B3',
+            'TUR': '#E30A17', 'GER': '#DD0000', 'LTU': '#FDB913', 'CRO': '#FF0000',
+            'AUS': '#00843D', 'CAN': '#FF0000', 'DOM': '#CE1126', 'CHN': '#DE2910',
+            'ISR': '#0038B8', 'MEX': '#006847', 'URU': '#75AADB', 'PHI': '#FCD116'
+        };
+
+        function getTeamCountryId(team) {
+            if (!team) return null;
+            if (team.countryId) return team.countryId;
+            for (let c in dbTeams) {
+                if (dbTeams[c].find(t => t.name === team.name)) { team.countryId = c; return c; }
+            }
+            return null;
+        }
+
+        function updateBackground(team) {
+            const countryId = getTeamCountryId(team);
+            const accent = dbCountryTheme[countryId] || '#3B82F6';
+            document.body.style.backgroundImage = `radial-gradient(circle at 15% 0%, ${accent}26, transparent 55%), radial-gradient(circle at 85% 100%, ${accent}18, transparent 55%)`;
+        }
 
         const dbTeams = {
             'ARG': [
@@ -736,6 +785,8 @@
 
         let currentTeam = null;
         let initialSelectedTeam = null;
+        let gameSpeed = 1;
+        let seasonCounter = 0;
         let flowQueue = []; 
         let mgAnimId = null; 
 
@@ -793,11 +844,21 @@
         function renderInitialTeams() {
             const tList = document.getElementById('initial-team-list');
             tList.innerHTML = '';
-            let pool = dbTeams[player.countryId]?.filter(t => t.tier === 1) || [];
-            if (pool.length === 0 && dbTeams[player.countryId]) pool = dbTeams[player.countryId];
-            
+            let base = dbTeams[player.countryId] || [];
+            let tier1 = base.filter(t => t.tier === 1);
+            let tier2 = base.filter(t => t.tier === 2);
+            let pool = tier1.length > 0 ? [...tier1] : [...base];
+
+            // Variedad: a veces se cuela un equipo de categoría superior entre las opciones de debut
+            if (tier2.length > 0 && Math.random() < 0.45) {
+                pool.push(tier2[Math.floor(Math.random() * tier2.length)]);
+            }
+
+            // Mezclar el orden y el equipo destacado por defecto para que no sean siempre los mismos
+            pool = pool.sort(() => 0.5 - Math.random());
+
             if (pool.length > 0) {
-                initialSelectedTeam = pool[0];
+                initialSelectedTeam = pool[Math.floor(Math.random() * pool.length)];
                 pool.forEach(t => {
                     const btn = document.createElement('button');
                     const isActive = t.name === initialSelectedTeam.name;
@@ -817,6 +878,36 @@
         function selectInitialTeam(team, el) {
             initialSelectedTeam = team;
             document.querySelectorAll('.init-team-btn').forEach(b => {
+                b.classList.remove('border-white', 'bg-white', 'text-black', 'shadow-[0_0_15px_rgba(255,255,255,0.3)]', 'scale-105');
+                b.classList.add('border-[#333]', 'bg-[#050505]', 'text-gray-400');
+            });
+            el.classList.remove('border-[#333]', 'bg-[#050505]', 'text-gray-400');
+            el.classList.add('border-white', 'bg-white', 'text-black', 'shadow-[0_0_15px_rgba(255,255,255,0.3)]', 'scale-105');
+        }
+
+        function renderSpeedOptions() {
+            const sList = document.getElementById('speed-list');
+            if (!sList) return;
+            sList.innerHTML = '';
+            const t = i18n[currentLang];
+            const options = [
+                { value: 1, icon: '📅', label: t.speedYear, desc: t.speedYearDesc },
+                { value: 2, icon: '⏩', label: t.speed2, desc: t.speed2Desc },
+                { value: 3, icon: '⏭️', label: t.speed3, desc: t.speed3Desc }
+            ];
+            options.forEach(o => {
+                const btn = document.createElement('button');
+                const isActive = o.value === gameSpeed;
+                btn.className = `speed-btn flex flex-col items-center gap-1 px-5 py-3 rounded-xl border ${isActive ? 'border-white bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105' : 'border-[#333] bg-[#050505] text-gray-400 hover:border-gray-500'} font-bold transition-all min-w-[150px]`;
+                btn.onclick = () => selectSpeed(o.value, btn);
+                btn.innerHTML = `<span class="text-2xl">${o.icon}</span><span class="text-sm">${o.label}</span><span class="text-[10px] font-normal ${isActive ? 'text-gray-700' : 'text-gray-600'}">${o.desc}</span>`;
+                sList.appendChild(btn);
+            });
+        }
+
+        function selectSpeed(value, el) {
+            gameSpeed = value;
+            document.querySelectorAll('.speed-btn').forEach(b => {
                 b.classList.remove('border-white', 'bg-white', 'text-black', 'shadow-[0_0_15px_rgba(255,255,255,0.3)]', 'scale-105');
                 b.classList.add('border-[#333]', 'bg-[#050505]', 'text-gray-400');
             });
@@ -864,6 +955,7 @@
             player.maxOvr = player.ovr;
             player.retired = false;
             currentTeam = initialSelectedTeam;
+            seasonCounter = 0;
 
             document.getElementById('screen-creation').classList.add('hidden');
             document.getElementById('screen-retirement').classList.add('hidden');
@@ -896,6 +988,7 @@
                     document.getElementById('ui-team-emoji').innerText = currentTeam.emoji;
                     document.getElementById('ui-team-emoji').style.display = 'inline';
                 }
+                updateBackground(currentTeam);
             }
 
             document.getElementById('ui-tot-gp').innerText = stats.totals.gp;
@@ -929,15 +1022,25 @@
             document.getElementById('ui-trophies').innerHTML = trHtml !== "" ? trHtml : `<span class="text-gray-700 text-xs italic">${t.noTitles}</span>`;
         }
 
+        let isAutoYear = false;
+
         function startYear() {
             if (player.retired) return; 
             if (player.age >= 40 || (player.age >= 36 && player.ovr < 65)) { forceRetirement(); return; }
             player.age++;
             flowQueue = [];
+            seasonCounter++;
             
             if(player.chem < 60) player.chem += Math.floor(Math.random() * 10) + 5;
             if(player.chem > 100) player.chem = 100;
             updateUI();
+
+            let isEventYear = (gameSpeed <= 1) || (seasonCounter % gameSpeed === 0);
+
+            if (!isEventYear) {
+                autoPlayYear();
+                return;
+            }
 
             if (Math.random() < 0.32) flowQueue.push({ type: 'minigame' });
             if (Math.random() < 0.5) flowQueue.push({ type: 'decision', data: getMatchEvent() });
@@ -946,6 +1049,21 @@
             flowQueue.push({ type: 'market' });
 
             processFlow();
+        }
+
+        // Simula por completo una temporada "salteada" (sin decisiones ni minijuego) cuando la velocidad de carrera es mayor a 1
+        function autoPlayYear() {
+            if (player.retired) return;
+            autoResolveMarket();
+            updateUI();
+
+            const t = i18n[currentLang];
+            document.getElementById('action-title').innerText = `${t.autoYearToast} · ${player.age} ${t.ageLbl}`;
+            document.getElementById('action-desc').innerText = `${currentTeam.emoji} ${currentTeam.name}`;
+            document.getElementById('action-content').innerHTML = `<div class="flex justify-center my-4"><div class="w-6 h-6 border-4 border-gray-600 border-t-transparent rounded-full animate-spin"></div></div>`;
+
+            isAutoYear = true;
+            simulateSeason();
         }
 
         function processFlow() {
@@ -984,6 +1102,20 @@
                 let offers = generateMarketOffers();
                 let html = `<div class="flex flex-col gap-2 w-full mt-2">`;
                 offers.forEach((o, idx) => {
+                    if (o.isRetirement) {
+                        html += `
+                            <div onclick="handleMarket(${idx})" class="flex items-center justify-between bg-[#1a0808] hover:bg-[#2a0a0a] border border-red-900/50 hover:border-red-500 rounded-xl p-3 cursor-pointer transition-colors group">
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] text-red-500 uppercase font-bold">${t.retireOptionLabel}</span>
+                                    <span class="font-black text-red-400 text-sm group-hover:text-red-300 transition-colors flex items-center gap-1">
+                                        🏁 ${t.retireOptionName}
+                                    </span>
+                                    <span class="text-[9px] text-gray-500">${t.retireOptionDesc}</span>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
                     let rTxt = {es: ["Quedarse en", "Ir cedido a", "Fichar por"], en: ["Stay at", "Loan to", "Sign with"], pt: ["Ficar em", "Emprestado ao", "Assinar com"]}[currentLang];
                     let roleStr = o.isRenewal ? rTxt[0] : (o.isLoan ? rTxt[1] : rTxt[2]);
                     let borderClass = o.isRenewal ? 'border-blue-900/40' : (o.isLoan ? 'border-yellow-900/40' : 'border-[#222]');
@@ -1622,11 +1754,22 @@
                 if (candidates.length === 0) break;
                 offers.push({ team: candidates[0], isRenewal: false, isLoan: false, salary: calcSalary(candidates[0], player.ovr) });
             }
+
+            if (player.age >= 34) {
+                offers.push({ isRetirement: true });
+            }
+
             return offers;
         }
 
         function handleMarket(idx) {
             const offer = flowQueue[0].tempOffers[idx];
+
+            if (offer.isRetirement) {
+                forceRetirement();
+                return;
+            }
+
             if (currentTeam.name !== offer.team.name) {
                 player.chem = 50; 
                 let t = {es:"Nuevo Vestuario: QMC a 50", en:"New Locker Room: Chem to 50", pt:"Novo Vestiário: QMC a 50"}[currentLang];
@@ -1638,6 +1781,22 @@
             stats.money += offer.salary;
             updateUI();
             nextFlow();
+        }
+
+        // Resuelve el mercado automáticamente para las temporadas simuladas en modo "auto" (año por medio / cada 3 años)
+        function autoResolveMarket() {
+            if (player.parentTeam) { currentTeam = player.parentTeam; player.parentTeam = null; }
+
+            let offers = generateMarketOffers().filter(o => !o.isRetirement);
+            if (offers.length === 0) return;
+
+            let chosen = offers.find(o => o.isRenewal) || offers.reduce((best, o) => o.salary > best.salary ? o : best, offers[0]);
+
+            if (currentTeam.name !== chosen.team.name) { player.chem = 50; }
+            if (chosen.isLoan) player.parentTeam = chosen.parent;
+
+            currentTeam = chosen.team;
+            stats.money += chosen.salary;
         }
 
         function nextFlow() {
@@ -1774,6 +1933,13 @@
             let basePts = 10 + (relativeLvl * 0.4) + (Math.random()*5);
             let baseAst = 2 + (relativeLvl * 0.15) + (Math.random()*2);
 
+            // A partir de los 34, el rendimiento cae más rápido cada año
+            if (player.age >= 34) {
+                let declineYears = player.age - 33;
+                basePts -= declineYears * 1.8;
+                baseAst -= declineYears * 0.6;
+            }
+
             if (player.chem < 40) { basePts += Math.abs(chemFactor) * 2; baseAst -= Math.abs(chemFactor) * 1.5; } 
             else if (player.chem > 70) { baseAst += chemFactor * 1.5; basePts -= chemFactor * 0.5; }
             
@@ -1807,7 +1973,12 @@
             if (player.age <= 21) { ovrDelta = Math.floor(Math.random() * 3) + 1; if(hasTrain) ovrDelta += 1; } 
             else if (player.age <= 25) { ovrDelta = Math.floor(Math.random() * 2); if(hasTrain) ovrDelta += 1; } 
             else if (player.age >= 31 && player.age <= 33) { ovrDelta = Math.floor(Math.random() * -3); if(hasNutri || hasPsy) ovrDelta += 1; if(ovrDelta > 0) ovrDelta = 0; } 
-            else if (player.age >= 34) { ovrDelta = Math.floor(Math.random() * -4) - 1; if(hasPsy) ovrDelta += 1; if(ovrDelta > 0) ovrDelta = 0; }
+            else if (player.age >= 34) { 
+                let declineYears = player.age - 33;
+                ovrDelta = Math.floor(Math.random() * -4) - 3 - Math.min(5, declineYears); 
+                if(hasPsy) ovrDelta += 1; 
+                if(ovrDelta > 0) ovrDelta = 0; 
+            }
 
             let perfBonus = 0;
             if (ppg > 20) perfBonus += 1;
@@ -1819,8 +1990,9 @@
             if (player.age < 30 && ppg < 8 && apg < 3) ovrDelta -= 1;
 
             ovrDelta += perfBonus;
+            let minOvrDelta = player.age >= 34 ? -10 : -5;
             if (ovrDelta > 5) ovrDelta = 5;
-            if (ovrDelta < -5) ovrDelta = -5;
+            if (ovrDelta < minOvrDelta) ovrDelta = minOvrDelta;
 
             player.ovr += ovrDelta;
             if(player.ovr > 99) player.ovr = 99; 
@@ -1834,11 +2006,15 @@
             updateUI();
             
             const t = i18n[currentLang];
-            document.getElementById('action-title').innerText = t.simTitle;
-            document.getElementById('action-desc').innerText = t.simDesc;
-            document.getElementById('action-content').innerHTML = `<div class="flex justify-center my-4"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>`;
+            if (!isAutoYear) {
+                document.getElementById('action-title').innerText = t.simTitle;
+                document.getElementById('action-desc').innerText = t.simDesc;
+                document.getElementById('action-content').innerHTML = `<div class="flex justify-center my-4"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>`;
+            }
 
-            setTimeout(() => { startYear(); }, 800); 
+            let delay = isAutoYear ? 280 : 800;
+            isAutoYear = false;
+            setTimeout(() => { startYear(); }, delay); 
         }
 
         function addHistoryRow(gp, pts, ast, isChamp, isMvp, isRoty, isDpoy, isScoring) {
