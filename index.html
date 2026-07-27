@@ -70,7 +70,6 @@
         .country-item.active { background-color: #222; border-color: #555; }
         .hand-btn.active { background-color: #fff; color: #000; }
         
-        /* Tooltip custom para trofeos */
         .trophy-icon {
             position: relative;
             cursor: help;
@@ -79,6 +78,10 @@
         .trophy-icon:hover {
             transform: scale(1.2);
         }
+
+        .lang-btn { filter: grayscale(100%); transition: all 0.3s ease; }
+        .lang-btn:hover { filter: grayscale(50%); transform: scale(1.1); }
+        .lang-btn.active { filter: grayscale(0%); transform: scale(1.2); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center p-2 md:p-6 text-sm">
@@ -95,13 +98,21 @@
         <!-- ========================================== -->
         <!-- PANTALLA 1: CREACIÓN DE IDENTIDAD          -->
         <!-- ========================================== -->
-        <main id="screen-creation" class="w-full max-w-5xl mx-auto bg-[#0a0a0a] border border-[#222] rounded-3xl p-8 shadow-2xl block">
-            <h2 class="text-3xl font-black mb-6 text-white tracking-tight">Definí tu identidad</h2>
+        <main id="screen-creation" class="w-full max-w-5xl mx-auto bg-[#0a0a0a] border border-[#222] rounded-3xl p-8 shadow-2xl block relative">
+            
+            <!-- Selector de Idioma -->
+            <div class="absolute top-6 right-8 flex gap-3 bg-[#111] p-2 rounded-xl border border-[#222]">
+                <button onclick="setLanguage('es')" id="btn-lang-es" class="lang-btn active text-2xl" title="Español">🇪🇸</button>
+                <button onclick="setLanguage('pt')" id="btn-lang-pt" class="lang-btn text-2xl" title="Português">🇧🇷</button>
+                <button onclick="setLanguage('en')" id="btn-lang-en" class="lang-btn text-2xl" title="English">🇬🇧</button>
+            </div>
+
+            <h2 id="t-creation-title" class="text-3xl font-black mb-6 text-white tracking-tight">Definí tu identidad</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- COLUMNA 1: Identidad (Camiseta) -->
                 <div class="flex flex-col items-center bg-[#111] p-6 rounded-2xl border border-[#222]">
-                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Identidad</h3>
+                    <h3 id="t-identity-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Identidad</h3>
                     
                     <svg id="jersey-svg" viewBox="0 0 200 250" class="w-48 h-48 drop-shadow-2xl mb-6">
                         <path id="jersey-base" d="M60,20 C40,20 30,40 30,40 L40,90 L40,230 C40,240 50,250 60,250 L140,250 C150,250 160,240 160,230 L160,90 L170,40 C170,40 160,20 140,20 C120,20 120,50 100,50 C80,50 80,20 60,20 Z" fill="#e2e8f0" stroke="#334155" stroke-width="3"/>
@@ -113,35 +124,35 @@
 
                     <div class="w-full flex gap-3 mb-4">
                         <div class="flex-1">
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Apellido</label>
+                            <label id="t-lastname-lbl" class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Apellido</label>
                             <input type="text" id="in-name" oninput="updateJersey()" maxlength="10" placeholder="APELLIDO" class="w-full bg-[#050505] border border-[#333] rounded-xl px-3 py-2 text-white text-center focus:outline-none focus:border-white uppercase font-bold text-sm transition-colors">
                         </div>
                         <div class="w-20">
-                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Número</label>
+                            <label id="t-number-lbl" class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Número</label>
                             <input type="number" id="in-num" oninput="updateJersey()" min="0" max="99" value="10" class="w-full bg-[#050505] border border-[#333] rounded-xl px-3 py-2 text-white text-center focus:outline-none focus:border-white font-bold text-sm">
                         </div>
                     </div>
 
                     <div class="w-full">
-                        <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase text-center">Mano Hábil</label>
+                        <label id="t-hand-lbl" class="block text-[10px] font-bold text-gray-500 mb-2 uppercase text-center">Mano Hábil</label>
                         <div class="flex bg-[#050505] border border-[#333] rounded-xl p-1">
-                            <button id="btn-hand-l" onclick="setHand('L')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors">Izquierda</button>
-                            <button id="btn-hand-r" onclick="setHand('R')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors active">Derecha</button>
+                            <button id="btn-hand-l" onclick="setHand('L')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors">Izq</button>
+                            <button id="btn-hand-r" onclick="setHand('R')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors active">Der</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- COLUMNA 2: Nacionalidad -->
                 <div class="flex flex-col bg-[#111] p-6 rounded-2xl border border-[#222]">
-                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Nacionalidad</h3>
-                    <div id="country-list" class="flex-1 overflow-y-auto space-y-2 pr-2">
+                    <h3 id="t-nationality-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Nacionalidad</h3>
+                    <div id="country-list" class="flex-1 overflow-y-auto space-y-2 pr-2 max-h-[350px]">
                         <!-- Items inyectados via JS -->
                     </div>
                 </div>
 
                 <!-- COLUMNA 3: Posición (Cancha) -->
                 <div class="flex flex-col bg-[#111] p-6 rounded-2xl border border-[#222]">
-                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Posición</h3>
+                    <h3 id="t-position-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Posición</h3>
                     
                     <div class="court-bg w-full h-[320px] rounded-xl mt-auto relative shadow-inner">
                         <div class="court-line w-[160px] h-[140px] border-2 border-b-0 top-0 left-1/2 transform -translate-x-1/2"></div> 
@@ -160,14 +171,14 @@
 
             <!-- SECCIÓN: Elegir Primer Equipo -->
             <div class="mt-8 bg-[#111] p-6 rounded-2xl border border-[#222]">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Primer Equipo (Promesas / Tier 1)</h3>
+                <h3 id="t-firstteam-lbl" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Primer Equipo</h3>
                 <div id="initial-team-list" class="flex flex-wrap justify-center gap-4">
                     <!-- Items inyectados via JS -->
                 </div>
             </div>
 
             <div class="mt-8 flex justify-end gap-4 border-t border-[#222] pt-6">
-                <button onclick="startGame()" class="bg-white hover:bg-gray-200 text-black font-black py-3 px-8 rounded-xl transition-all text-sm uppercase tracking-wide">
+                <button id="t-confirm-btn" onclick="startGame()" class="bg-white hover:bg-gray-200 text-black font-black py-3 px-8 rounded-xl transition-all text-sm uppercase tracking-wide">
                     Confirmar Identidad
                 </button>
             </div>
@@ -184,14 +195,12 @@
                 <div class="bg-[#111] border border-[#222] rounded-3xl p-5 flex flex-col gap-5 relative">
                     <!-- Fila Superior: OVR y Datos -->
                     <div class="flex items-start gap-4">
-                        <!-- OVR Shield Dinámico -->
                         <div id="ovr-shield" class="rounded-2xl w-20 h-24 flex flex-col items-center justify-center shrink-0 shadow-lg relative bg-gradient-to-b from-slate-300 to-slate-500 transition-colors duration-500">
                             <span class="text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">OVR</span>
                             <span id="ui-ovr" class="text-5xl font-black leading-none -mt-1 tracking-tighter">70</span>
                             <div id="ovr-toast" class="absolute -top-6 font-black text-lg hidden z-50"></div>
                         </div>
                         
-                        <!-- Header Datos -->
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center justify-between mb-1">
                                 <div class="flex items-center gap-2">
@@ -199,7 +208,7 @@
                                     <span id="ui-pos" class="bg-blue-900/50 text-blue-400 border border-blue-900 px-2 py-0.5 rounded text-[10px] font-bold">#10 PG</span>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[10px] text-gray-500 font-bold uppercase block leading-none mb-1">Edad</span>
+                                    <span id="t-age-lbl" class="text-[10px] text-gray-500 font-bold uppercase block leading-none mb-1">Edad</span>
                                     <span id="ui-age" class="text-xl font-black text-white leading-none">18</span>
                                 </div>
                             </div>
@@ -214,12 +223,12 @@
 
                     <!-- Fila Medio: Nombre y Dinero -->
                     <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[10px] text-gray-500 font-bold uppercase">Jugador</p>
+                        <div class="max-w-[50%]">
+                            <p id="t-player-lbl" class="text-[10px] text-gray-500 font-bold uppercase truncate">Jugador</p>
                             <h2 id="ui-name" class="text-2xl font-black text-white truncate leading-none mt-1">APELLIDO</h2>
                         </div>
                         <div class="text-right">
-                            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Cuenta Bancaria</p>
+                            <p id="t-bank-lbl" class="text-[10px] text-gray-500 font-bold uppercase mb-1">Cuenta</p>
                             <p id="ui-money" class="text-lg font-bold text-green-400 leading-none">$0</p>
                         </div>
                     </div>
@@ -227,33 +236,32 @@
                     <!-- Stats y Tienda -->
                     <div class="grid grid-cols-4 gap-2 mt-2">
                         <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
-                            <p class="text-[9px] text-gray-500 font-bold mb-1">PJ</p>
+                            <p id="t-gp-lbl" class="text-[9px] text-gray-500 font-bold mb-1">PJ</p>
                             <p id="ui-tot-gp" class="text-sm font-bold text-white font-mono">0</p>
                         </div>
                         <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
-                            <p class="text-[9px] text-gray-500 font-bold mb-1">PTS</p>
+                            <p id="t-pts-lbl" class="text-[9px] text-gray-500 font-bold mb-1">PTS</p>
                             <p id="ui-tot-pts" class="text-sm font-bold text-white font-mono">0</p>
                         </div>
                         <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
-                            <p class="text-[9px] text-gray-500 font-bold mb-1">AST</p>
+                            <p id="t-ast-lbl" class="text-[9px] text-gray-500 font-bold mb-1">AST</p>
                             <p id="ui-tot-ast" class="text-sm font-bold text-white font-mono">0</p>
                         </div>
                         <button onclick="openShop()" class="bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-900 rounded-xl p-2 flex flex-col items-center justify-center transition-colors">
                             <span class="text-lg leading-none mb-1">🛒</span>
-                            <span class="text-[9px] font-bold text-indigo-300 uppercase">Tienda</span>
+                            <span id="t-shop-lbl" class="text-[9px] font-bold text-indigo-300 uppercase">Tienda</span>
                         </button>
                     </div>
 
-                    <!-- Seguidores -->
+                    <!-- Seguidores y Química -->
                     <div class="mt-2 flex justify-between items-end px-1">
-                        <span class="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><span class="text-blue-400">📱</span> Seguidores</span>
+                        <span class="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><span class="text-blue-400">📱</span> <span id="t-followers-lbl">Seguidores</span></span>
                         <span id="ui-followers" class="text-sm font-black text-white leading-none">0</span>
                     </div>
 
-                    <!-- Química -->
                     <div class="mt-2 bg-[#050505] border border-[#222] rounded-xl p-3">
                         <div class="flex justify-between items-end mb-1">
-                            <span class="text-[10px] text-gray-500 font-bold uppercase">Química del Equipo</span>
+                            <span id="t-chem-lbl" class="text-[10px] text-gray-500 font-bold uppercase">Química</span>
                             <span id="ui-playstyle" class="text-xs font-black text-blue-400">Balanceado</span>
                         </div>
                         <div class="w-full bg-[#111] rounded-full h-2.5 border border-[#333]">
@@ -261,9 +269,9 @@
                         </div>
                     </div>
 
-                    <!-- Trofeos Individuales y Grupales -->
+                    <!-- Trofeos -->
                     <div id="ui-trophies" class="flex flex-wrap gap-2 text-xl min-h-[30px] items-center">
-                        <span class="text-gray-700 text-xs italic">Sin títulos aún.</span>
+                        <span class="text-gray-700 text-xs italic">...</span>
                     </div>
                 </div>
 
@@ -271,7 +279,7 @@
                 <div class="bg-[#111] border border-[#222] rounded-3xl p-5 flex-1 flex flex-col relative overflow-hidden">
                     <div class="mb-4">
                         <h3 id="action-title" class="text-lg font-black text-white">Simulando...</h3>
-                        <p id="action-desc" class="text-xs text-gray-400 mt-1">Preparando la siguiente etapa.</p>
+                        <p id="action-desc" class="text-xs text-gray-400 mt-1">...</p>
                     </div>
                     
                     <div id="action-content" class="flex-1 flex flex-col justify-center">
@@ -280,7 +288,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button onclick="forceRetirement()" class="text-xs text-gray-600 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">
+                    <button id="t-retire-btn" onclick="forceRetirement()" class="text-xs text-gray-600 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">
                         Anunciar Retiro
                     </button>
                 </div>
@@ -289,10 +297,10 @@
             <!-- COLUMNA DERECHA: Historial Cronológico -->
             <main class="w-full md:w-[55%] flex flex-col h-[85vh]">
                 <div class="flex text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 px-4">
-                    <div class="w-8">EDAD</div>
-                    <div class="flex-1">CLUB</div>
+                    <div id="th-age" class="w-8">EDAD</div>
+                    <div id="th-club" class="flex-1">CLUB</div>
                     <div class="w-10 text-center">OVR</div>
-                    <div class="w-10 text-right">PJ</div>
+                    <div id="th-gp" class="w-10 text-right">PJ</div>
                     <div class="w-10 text-right">PTS</div>
                     <div class="w-10 text-right">AST</div>
                 </div>
@@ -308,8 +316,8 @@
         <!-- ========================================== -->
         <main id="screen-retirement" class="w-full max-w-4xl mx-auto bg-[#111] border border-[#222] rounded-3xl p-10 shadow-2xl hidden mt-4">
             <div class="text-center mb-10">
-                <h1 class="text-5xl font-black text-white mb-2 uppercase tracking-tighter">Retiro Oficial</h1>
-                <p class="text-gray-400 text-lg">El fin de una era. Resumen de una leyenda.</p>
+                <h1 id="t-ret-title" class="text-5xl font-black text-white mb-2 uppercase tracking-tighter">Retiro Oficial</h1>
+                <p id="t-ret-desc" class="text-gray-400 text-lg">El fin de una era. Resumen de una leyenda.</p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -318,28 +326,28 @@
                     <p id="ret-maxovr" class="text-4xl font-black text-slate-300">0</p>
                 </div>
                 <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Temporadas</p>
+                    <p id="t-ret-seasons" class="text-xs text-gray-500 font-bold uppercase mb-1">Temporadas</p>
                     <p id="ret-seasons" class="text-4xl font-black text-white">0</p>
                 </div>
                 <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Puntos Tot.</p>
+                    <p id="t-ret-pts" class="text-xs text-gray-500 font-bold uppercase mb-1">Puntos Tot.</p>
                     <p id="ret-pts" class="text-4xl font-black text-blue-400">0</p>
                 </div>
                 <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
-                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Asistencias</p>
+                    <p id="t-ret-ast" class="text-xs text-gray-500 font-bold uppercase mb-1">Asistencias</p>
                     <p id="ret-ast" class="text-4xl font-black text-green-400">0</p>
                 </div>
             </div>
 
             <div class="bg-[#050505] p-6 rounded-xl border border-[#222] mb-8">
-                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-[#222] pb-2">Palmarés y Legado</h3>
+                <h3 id="t-ret-awards" class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-[#222] pb-2">Palmarés y Legado</h3>
                 <div class="flex flex-wrap gap-6 justify-center items-end" id="ret-awards-container">
                     <!-- Los premios se inyectarán aquí -->
                 </div>
             </div>
 
             <div class="text-center">
-                <button onclick="location.reload()" class="bg-white hover:bg-gray-200 text-black font-black py-4 px-12 rounded-xl transition-all text-lg uppercase tracking-wide">
+                <button id="t-ret-playagain" onclick="location.reload()" class="bg-white hover:bg-gray-200 text-black font-black py-4 px-12 rounded-xl transition-all text-lg uppercase tracking-wide">
                     Jugar Nueva Carrera
                 </button>
             </div>
@@ -350,7 +358,7 @@
     <div id="modal-shop" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-[#111] border border-[#222] rounded-3xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl">
             <div class="flex justify-between items-center p-5 border-b border-[#222]">
-                <h2 class="text-xl font-black text-white">Estilo de Vida & Mejoras</h2>
+                <h2 id="t-shop-title" class="text-xl font-black text-white">Estilo de Vida & Mejoras</h2>
                 <button onclick="closeShopModal()" class="text-gray-500 hover:text-white font-bold text-2xl leading-none">&times;</button>
             </div>
             <div class="p-5 overflow-y-auto flex-1">
@@ -360,15 +368,124 @@
     </div>
 
     <script>
+        // --- I18N SYSTEM ---
+        let currentLang = 'es';
+        const i18n = {
+            es: {
+                creationTitle: "Definí tu identidad", identityLbl: "Identidad", lastNameLbl: "Apellido",
+                numberLbl: "Número", handLbl: "Mano Hábil", nationalityLbl: "Nacionalidad",
+                positionLbl: "Posición", firstTeamLbl: "Primer Equipo", confirmBtn: "Confirmar Identidad",
+                ageLbl: "Edad", playerLbl: "Jugador", bankLbl: "Cuenta Bancaria", gpLbl: "PJ", ptsLbl: "PTS",
+                astLbl: "AST", shopLbl: "Tienda", followersLbl: "Seguidores", chemLbl: "Química del Equipo",
+                retireBtn: "Anunciar Retiro", thAge: "EDAD", thClub: "CLUB", thGp: "PJ", retTitle: "Retiro Oficial",
+                retDesc: "El fin de una era. Resumen de una leyenda.", retSeasons: "Temporadas", retPts: "Puntos Tot.",
+                retAst: "Asistencias", retAwards: "Palmarés y Legado", retPlayagain: "Jugar Nueva Carrera",
+                shopTitle: "Estilo de Vida & Mejoras", handL: "Izq", handR: "Der",
+                chemToxic: "Egoísta / Tóxico", chemLeader: "Líder de Equipo", chemBalanced: "Balanceado",
+                marketTitle: "Mercado de pases", marketDesc: "Fin de temporada. ¿Qué harás?",
+                simTitle: "Simulando...", simDesc: "Preparando la siguiente etapa.",
+                mgTitle: "Tiro Libre Crucial", mgDesc: "Mueve el mouse para ángulo. Clic para fijar. Clic para tirar.",
+                noTitles: "Sin títulos aún."
+            },
+            en: {
+                creationTitle: "Define your identity", identityLbl: "Identity", lastNameLbl: "Last Name",
+                numberLbl: "Number", handLbl: "Strong Hand", nationalityLbl: "Nationality",
+                positionLbl: "Position", firstTeamLbl: "First Team", confirmBtn: "Confirm Identity",
+                ageLbl: "Age", playerLbl: "Player", bankLbl: "Bank Account", gpLbl: "GP", ptsLbl: "PTS",
+                astLbl: "AST", shopLbl: "Shop", followersLbl: "Followers", chemLbl: "Team Chemistry",
+                retireBtn: "Announce Retirement", thAge: "AGE", thClub: "CLUB", thGp: "GP", retTitle: "Official Retirement",
+                retDesc: "The end of an era. Legend's summary.", retSeasons: "Seasons", retPts: "Total Points",
+                retAst: "Assists", retAwards: "Trophies & Legacy", retPlayagain: "Play New Career",
+                shopTitle: "Lifestyle & Upgrades", handL: "Left", handR: "Right",
+                chemToxic: "Selfish / Toxic", chemLeader: "Team Leader", chemBalanced: "Balanced",
+                marketTitle: "Transfer Market", marketDesc: "End of season. What's next?",
+                simTitle: "Simulating...", simDesc: "Preparing next stage.",
+                mgTitle: "Crucial Free Throw", mgDesc: "Move mouse for angle. Click to lock. Click to shoot.",
+                noTitles: "No titles yet."
+            },
+            pt: {
+                creationTitle: "Defina sua identidade", identityLbl: "Identidade", lastNameLbl: "Sobrenome",
+                numberLbl: "Número", handLbl: "Mão Boa", nationalityLbl: "Nacionalidade",
+                positionLbl: "Posição", firstTeamLbl: "Primeiro Time", confirmBtn: "Confirmar Identidade",
+                ageLbl: "Idade", playerLbl: "Jogador", bankLbl: "Conta Bancária", gpLbl: "J", ptsLbl: "PTS",
+                astLbl: "AST", shopLbl: "Loja", followersLbl: "Seguidores", chemLbl: "Química do Time",
+                retireBtn: "Anunciar Aposentadoria", thAge: "IDADE", thClub: "CLUBE", thGp: "J", retTitle: "Aposentadoria Oficial",
+                retDesc: "O fim de uma era. Resumo da lenda.", retSeasons: "Temporadas", retPts: "Pontos Totais",
+                retAst: "Assistências", retAwards: "Troféus e Legado", retPlayagain: "Jogar Nova Carreira",
+                shopTitle: "Estilo de Vida e Melhorias", handL: "Esq", handR: "Dir",
+                chemToxic: "Egoísta / Tóxico", chemLeader: "Líder da Equipe", chemBalanced: "Equilibrado",
+                marketTitle: "Mercado de Transferências", marketDesc: "Fim da temporada. E agora?",
+                simTitle: "Simulando...", simDesc: "Preparando a próxima fase.",
+                mgTitle: "Lance Livre Crucial", mgDesc: "Mova o mouse para ângulo. Clique para fixar. Clique para lançar.",
+                noTitles: "Sem títulos ainda."
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-lang-${lang}`).classList.add('active');
+            
+            // Translate static UI elements
+            const t = i18n[lang];
+            document.getElementById('t-creation-title').innerText = t.creationTitle;
+            document.getElementById('t-identity-lbl').innerText = t.identityLbl;
+            document.getElementById('t-lastname-lbl').innerText = t.lastNameLbl;
+            document.getElementById('in-name').placeholder = t.lastNameLbl.toUpperCase();
+            document.getElementById('t-number-lbl').innerText = t.numberLbl;
+            document.getElementById('t-hand-lbl').innerText = t.handLbl;
+            document.getElementById('btn-hand-l').innerText = t.handL;
+            document.getElementById('btn-hand-r').innerText = t.handR;
+            document.getElementById('t-nationality-lbl').innerText = t.nationalityLbl;
+            document.getElementById('t-position-lbl').innerText = t.positionLbl;
+            document.getElementById('t-firstteam-lbl').innerText = t.firstTeamLbl;
+            document.getElementById('t-confirm-btn').innerText = t.confirmBtn;
+            
+            document.getElementById('t-age-lbl').innerText = t.ageLbl;
+            document.getElementById('t-player-lbl').innerText = t.playerLbl;
+            document.getElementById('t-bank-lbl').innerText = t.bankLbl;
+            document.getElementById('t-gp-lbl').innerText = t.gpLbl;
+            document.getElementById('t-pts-lbl').innerText = t.ptsLbl;
+            document.getElementById('t-ast-lbl').innerText = t.astLbl;
+            document.getElementById('t-shop-lbl').innerText = t.shopLbl;
+            document.getElementById('t-followers-lbl').innerText = t.followersLbl;
+            document.getElementById('t-chem-lbl').innerText = t.chemLbl;
+            document.getElementById('t-retire-btn').innerText = t.retireBtn;
+            
+            document.getElementById('th-age').innerText = t.thAge;
+            document.getElementById('th-club').innerText = t.thClub;
+            document.getElementById('th-gp').innerText = t.thGp;
+            
+            document.getElementById('t-ret-title').innerText = t.retTitle;
+            document.getElementById('t-ret-desc').innerText = t.retDesc;
+            document.getElementById('t-ret-seasons').innerText = t.retSeasons;
+            document.getElementById('t-ret-pts').innerText = t.retPts;
+            document.getElementById('t-ret-ast').innerText = t.retAst;
+            document.getElementById('t-ret-awards').innerText = t.retAwards;
+            document.getElementById('t-ret-playagain').innerText = t.retPlayagain;
+            
+            document.getElementById('t-shop-title').innerText = t.shopTitle;
+
+            // Re-render things that depend on localized data
+            if(player.name === 'APELLIDO' || player.name === 'LAST NAME' || player.name === 'SOBRENOME') {
+                document.getElementById('in-name').value = '';
+                updateJersey(); 
+            }
+            if(!document.getElementById('main-hub').classList.contains('hidden')) updateUI();
+        }
+
         // --- BASE DE DATOS ---
         const dbCountries = [
-            { id: 'ARG', name: 'Argentina', flag: '🇦🇷' },
-            { id: 'ESP', name: 'España', flag: '🇪🇸' },
-            { id: 'USA', name: 'Estados Unidos', flag: '🇺🇸' },
-            { id: 'BRA', name: 'Brasil', flag: '🇧🇷' },
-            { id: 'FRA', name: 'Francia', flag: '🇫🇷' },
-            { id: 'SRB', name: 'Serbia', flag: '🇷🇸' },
-            { id: 'GRE', name: 'Grecia', flag: '🇬🇷' }
+            { id: 'ARG', name: 'Argentina', flag: '🇦🇷' }, { id: 'ESP', name: 'España', flag: '🇪🇸' },
+            { id: 'USA', name: 'Estados Unidos', flag: '🇺🇸' }, { id: 'BRA', name: 'Brasil', flag: '🇧🇷' },
+            { id: 'FRA', name: 'Francia', flag: '🇫🇷' }, { id: 'SRB', name: 'Serbia', flag: '🇷🇸' },
+            { id: 'GRE', name: 'Grecia', flag: '🇬🇷' }, { id: 'ITA', name: 'Italia', flag: '🇮🇹' },
+            { id: 'TUR', name: 'Turquía', flag: '🇹🇷' }, { id: 'GER', name: 'Alemania', flag: '🇩🇪' },
+            { id: 'LTU', name: 'Lituania', flag: '🇱🇹' }, { id: 'CRO', name: 'Croacia', flag: '🇭🇷' },
+            { id: 'AUS', name: 'Australia', flag: '🇦🇺' }, { id: 'CAN', name: 'Canadá', flag: '🇨🇦' },
+            { id: 'DOM', name: 'Rep. Dominicana', flag: '🇩🇴' }, { id: 'CHN', name: 'China', flag: '🇨🇳' },
+            { id: 'ISR', name: 'Israel', flag: '🇮🇱' }, { id: 'MEX', name: 'México', flag: '🇲🇽' },
+            { id: 'URU', name: 'Uruguay', flag: '🇺🇾' }, { id: 'PHI', name: 'Filipinas', flag: '🇵🇭' }
         ];
 
         const dbJerseyColors = {
@@ -378,7 +495,20 @@
             'BRA': { base: '#009739', trim: '#FEDD00', collar: '#002776', text: '#FEDD00' }, 
             'FRA': { base: '#FFFFFF', trim: '#0055A4', collar: '#EF4135', text: '#0055A4' }, 
             'SRB': { base: '#C6363C', trim: '#0C4076', collar: '#0C4076', text: '#FFFFFF' }, 
-            'GRE': { base: '#0D5EAF', trim: '#FFFFFF', collar: '#FFFFFF', text: '#FFFFFF' }  
+            'GRE': { base: '#0D5EAF', trim: '#FFFFFF', collar: '#FFFFFF', text: '#FFFFFF' },
+            'ITA': { base: '#FFFFFF', trim: '#0066B3', collar: '#009246', text: '#0066B3' },
+            'TUR': { base: '#E30A17', trim: '#FFFFFF', collar: '#FFFFFF', text: '#FFFFFF' },
+            'GER': { base: '#FFFFFF', trim: '#000000', collar: '#DD0000', text: '#000000' },
+            'LTU': { base: '#FDB913', trim: '#006A44', collar: '#C1272D', text: '#006A44' },
+            'CRO': { base: '#FFFFFF', trim: '#FF0000', collar: '#171796', text: '#FF0000' },
+            'AUS': { base: '#00843D', trim: '#FFCD00', collar: '#FFCD00', text: '#FFCD00' },
+            'CAN': { base: '#FFFFFF', trim: '#FF0000', collar: '#FF0000', text: '#FF0000' },
+            'DOM': { base: '#002D62', trim: '#CE1126', collar: '#FFFFFF', text: '#FFFFFF' },
+            'CHN': { base: '#DE2910', trim: '#FFDE00', collar: '#FFDE00', text: '#FFDE00' },
+            'ISR': { base: '#FFFFFF', trim: '#0038B8', collar: '#0038B8', text: '#0038B8' },
+            'MEX': { base: '#FFFFFF', trim: '#006847', collar: '#CE1126', text: '#006847' },
+            'URU': { base: '#FFFFFF', trim: '#75AADB', collar: '#75AADB', text: '#75AADB' },
+            'PHI': { base: '#0038A8', trim: '#CE1126', collar: '#FCD116', text: '#FCD116' }
         };
 
         const dbTeams = {
@@ -446,29 +576,162 @@
                 { name: "AEK", emoji: "🟡⚫", level: 68, league: "GBL", tier: 2 },
                 { name: "Olympiacos", emoji: "🔴⚪", level: 83, league: "GBL", tier: 3 },
                 { name: "Panathinaikos", emoji: "🟢⚪", level: 84, league: "GBL", tier: 3 }
+            ],
+            'ITA': [
+                { name: "Trapani", emoji: "🔴⚪", level: 57, league: "Serie A", tier: 1 },
+                { name: "Cremona", emoji: "⚪🔴", level: 59, league: "Serie A", tier: 1 },
+                { name: "Treviso", emoji: "🟢⚪", level: 61, league: "Serie A", tier: 1 },
+                { name: "Trento", emoji: "🟡⚪", level: 70, league: "Serie A", tier: 2 },
+                { name: "Sassari", emoji: "⚫⚪", level: 72, league: "Serie A", tier: 2 },
+                { name: "Virtus Bologna", emoji: "⚫⚪", level: 83, league: "Serie A", tier: 3 },
+                { name: "Olimpia Milano", emoji: "🔴⚫", level: 87, league: "Serie A", tier: 3 }
+            ],
+            'TUR': [
+                { name: "Bahçeşehir", emoji: "🟠⚫", level: 58, league: "BSL", tier: 1 },
+                { name: "Bursaspor", emoji: "🟢⚪", level: 60, league: "BSL", tier: 1 },
+                { name: "Türk Telekom", emoji: "🔵⚪", level: 69, league: "BSL", tier: 2 },
+                { name: "Galatasaray", emoji: "🟡🔴", level: 71, league: "BSL", tier: 2 },
+                { name: "Fenerbahçe", emoji: "🟡🔵", level: 85, league: "BSL", tier: 3 },
+                { name: "Anadolu Efes", emoji: "⚪🔵", level: 87, league: "BSL", tier: 3 }
+            ],
+            'GER': [
+                { name: "Rasta Vechta", emoji: "🔴⚪", level: 56, league: "BBL", tier: 1 },
+                { name: "Hamburg Towers", emoji: "🔴⚫", level: 58, league: "BBL", tier: 1 },
+                { name: "Ulm", emoji: "🟡⚫", level: 68, league: "BBL", tier: 2 },
+                { name: "Göttingen", emoji: "🔴⚪", level: 70, league: "BBL", tier: 2 },
+                { name: "Alba Berlin", emoji: "🟡⚫", level: 82, league: "BBL", tier: 3 },
+                { name: "Bayern Munich", emoji: "🔴⚪", level: 86, league: "BBL", tier: 3 }
+            ],
+            'LTU': [
+                { name: "Nevėžis", emoji: "🟢⚪", level: 55, league: "LKL", tier: 1 },
+                { name: "Šiauliai", emoji: "🟡🟢", level: 57, league: "LKL", tier: 1 },
+                { name: "Juventus", emoji: "🟡⚫", level: 66, league: "LKL", tier: 2 },
+                { name: "Neptūnas", emoji: "🔵⚪", level: 68, league: "LKL", tier: 2 },
+                { name: "Rytas", emoji: "🟢⚪", level: 79, league: "LKL", tier: 3 },
+                { name: "Žalgiris", emoji: "🟢⚪", level: 84, league: "LKL", tier: 3 }
+            ],
+            'CRO': [
+                { name: "Škrljevo", emoji: "🔵⚪", level: 55, league: "HT Premijer Liga", tier: 1 },
+                { name: "Gorica", emoji: "🟡🔵", level: 57, league: "HT Premijer Liga", tier: 1 },
+                { name: "Zabok", emoji: "🔴⚪", level: 65, league: "HT Premijer Liga", tier: 2 },
+                { name: "Cedevita Junior", emoji: "🟢⚪", level: 68, league: "HT Premijer Liga", tier: 2 },
+                { name: "Split", emoji: "🔵⚪", level: 78, league: "HT Premijer Liga", tier: 3 },
+                { name: "Cibona", emoji: "🔵⚪", level: 80, league: "HT Premijer Liga", tier: 3 }
+            ],
+            'AUS': [
+                { name: "Cairns Taipans", emoji: "🐍", level: 58, league: "NBL", tier: 1 },
+                { name: "Illawarra Hawks", emoji: "🦅", level: 60, league: "NBL", tier: 1 },
+                { name: "Adelaide 36ers", emoji: "🔴⚪", level: 71, league: "NBL", tier: 2 },
+                { name: "Tasmania JackJumpers", emoji: "🟡⚫", level: 73, league: "NBL", tier: 2 },
+                { name: "Melbourne United", emoji: "🔵⚫", level: 84, league: "NBL", tier: 3 },
+                { name: "Perth Wildcats", emoji: "🔴⚫", level: 86, league: "NBL", tier: 3 }
+            ],
+            'CAN': [
+                { name: "Guelph Nighthawks", emoji: "🟣⚫", level: 56, league: "CEBL", tier: 1 },
+                { name: "Ottawa BlackJacks", emoji: "⚫🔴", level: 58, league: "CEBL", tier: 1 },
+                { name: "Edmonton Stingers", emoji: "🟡⚫", level: 67, league: "CEBL", tier: 2 },
+                { name: "Niagara River Lions", emoji: "🔵🟡", level: 69, league: "CEBL", tier: 2 },
+                { name: "Scarborough Shooting Stars", emoji: "🟢⚪", level: 79, league: "CEBL", tier: 3 },
+                { name: "Vancouver Bandits", emoji: "🔴⚫", level: 81, league: "CEBL", tier: 3 }
+            ],
+            'DOM': [
+                { name: "Cañeros del Este", emoji: "🟢⚪", level: 55, league: "LNB Dominicana", tier: 1 },
+                { name: "Mauricianos", emoji: "🔵⚪", level: 57, league: "LNB Dominicana", tier: 1 },
+                { name: "Metros de Santiago", emoji: "🔴⚪", level: 65, league: "LNB Dominicana", tier: 2 },
+                { name: "Titanes del Distrito", emoji: "🟡⚫", level: 67, league: "LNB Dominicana", tier: 2 },
+                { name: "Leones de Santo Domingo", emoji: "🟠⚫", level: 76, league: "LNB Dominicana", tier: 3 },
+                { name: "Indios de San Francisco", emoji: "🔴🟡", level: 78, league: "LNB Dominicana", tier: 3 }
+            ],
+            'CHN': [
+                { name: "Fujian Sturgeons", emoji: "🔵⚪", level: 56, league: "CBA", tier: 1 },
+                { name: "Bayi Rockets", emoji: "🟢⚪", level: 58, league: "CBA", tier: 1 },
+                { name: "Shanghai Sharks", emoji: "🔵⚪", level: 68, league: "CBA", tier: 2 },
+                { name: "Beijing Ducks", emoji: "🟡⚫", level: 70, league: "CBA", tier: 2 },
+                { name: "Liaoning Flying Leopards", emoji: "🔴⚫", level: 82, league: "CBA", tier: 3 },
+                { name: "Guangdong Tigers", emoji: "🔴⚪", level: 85, league: "CBA", tier: 3 }
+            ],
+            'ISR': [
+                { name: "Ironi Nahariya", emoji: "🔵⚪", level: 56, league: "Ligat Winner", tier: 1 },
+                { name: "Hapoel Eilat", emoji: "🟡⚫", level: 58, league: "Ligat Winner", tier: 1 },
+                { name: "Hapoel Jerusalem", emoji: "🔴⚪", level: 69, league: "Ligat Winner", tier: 2 },
+                { name: "Ironi Ness Ziona", emoji: "🟠⚫", level: 71, league: "Ligat Winner", tier: 2 },
+                { name: "Hapoel Tel Aviv", emoji: "🔴⚪", level: 80, league: "Ligat Winner", tier: 3 },
+                { name: "Maccabi Tel Aviv", emoji: "🟡⚫", level: 88, league: "Ligat Winner", tier: 3 }
+            ],
+            'MEX': [
+                { name: "Correcaminos", emoji: "🟡⚫", level: 55, league: "LNBP", tier: 1 },
+                { name: "Abejas de León", emoji: "🟡⚫", level: 57, league: "LNBP", tier: 1 },
+                { name: "Halcones de Xalapa", emoji: "🔵⚪", level: 64, league: "LNBP", tier: 2 },
+                { name: "Fuerza Regia", emoji: "🔴⚫", level: 67, league: "LNBP", tier: 2 },
+                { name: "Soles de Mexicali", emoji: "🟠⚫", level: 73, league: "LNBP", tier: 3 },
+                { name: "Capitanes de CDMX", emoji: "🔵⚪", level: 77, league: "LNBP", tier: 3 }
+            ],
+            'URU': [
+                { name: "Aguada", emoji: "🔴⚪", level: 55, league: "LUB", tier: 1 },
+                { name: "Trouville", emoji: "🔵⚪", level: 56, league: "LUB", tier: 1 },
+                { name: "Malvín", emoji: "⚫⚪", level: 63, league: "LUB", tier: 2 },
+                { name: "Goes", emoji: "⚫🟡", level: 64, league: "LUB", tier: 2 },
+                { name: "Biguá", emoji: "🔴⚫", level: 68, league: "LUB", tier: 2 },
+                { name: "Defensor Sporting", emoji: "🟣⚪", level: 70, league: "LUB", tier: 2 }
+            ],
+            'PHI': [
+                { name: "Blackwater", emoji: "🟠⚫", level: 55, league: "PBA", tier: 1 },
+                { name: "NLEX", emoji: "🔵⚪", level: 57, league: "PBA", tier: 1 },
+                { name: "Magnolia", emoji: "🔴⚪", level: 66, league: "PBA", tier: 2 },
+                { name: "Rain or Shine", emoji: "🟡⚫", level: 68, league: "PBA", tier: 2 },
+                { name: "San Miguel", emoji: "🔴⚪", level: 78, league: "PBA", tier: 3 },
+                { name: "Barangay Ginebra", emoji: "🔴⚪", level: 80, league: "PBA", tier: 3 }
             ]
         };
 
+        let getShopItemsLocale = () => {
+            const loc = {
+                es: [
+                    { name: 'Zapatillas Signature', effect: 'Leve mejora en cancha (+1 OVR)' },
+                    { name: 'Coach Mental', effect: 'Amortigua la caída de nivel por edad.' },
+                    { name: 'Nutricionista', effect: 'Mejora físico y previene lesiones.' },
+                    { name: 'Entrenador Personal', effect: 'Bonus de progreso joven (+1 OVR extra)' },
+                    { name: 'Reloj de Lujo', effect: 'Puro Status (+100K Seg).' },
+                    { name: 'Mansión', effect: 'Puro Status (+1M Seg).' }
+                ],
+                en: [
+                    { name: 'Signature Shoes', effect: 'Slight court boost (+1 OVR)' },
+                    { name: 'Mental Coach', effect: 'Cushions age-related decline.' },
+                    { name: 'Nutritionist', effect: 'Improves physique, prevents injuries.' },
+                    { name: 'Personal Trainer', effect: 'Youth progress bonus (+1 extra OVR)' },
+                    { name: 'Luxury Watch', effect: 'Pure Status (+100K Fol).' },
+                    { name: 'Mansion', effect: 'Pure Status (+1M Fol).' }
+                ],
+                pt: [
+                    { name: 'Tênis Exclusivo', effect: 'Leve melhora em quadra (+1 OVR)' },
+                    { name: 'Coach Mental', effect: 'Amortece a queda de nível pela idade.' },
+                    { name: 'Nutricionista', effect: 'Melhora o físico, previne lesões.' },
+                    { name: 'Treinador Pessoal', effect: 'Bônus de progresso jovem (+1 OVR extra)' },
+                    { name: 'Relógio de Luxo', effect: 'Puro Status (+100K Seg).' },
+                    { name: 'Mansão', effect: 'Puro Status (+1M Seg).' }
+                ]
+            };
+            return loc[currentLang];
+        };
+
         let shopItems = [
-            { id: 'zapatillas', name: 'Zapatillas Signature', cost: 80000, effect: 'Leve mejora en cancha (+1 OVR)', type: 'stats', value: 1, owned: false },
-            { id: 'psicologo', name: 'Coach Mental', cost: 150000, effect: 'Amortigua la caída de nivel por edad.', type: 'passive', owned: false },
-            { id: 'nutricionista', name: 'Nutricionista', cost: 250000, effect: 'Mejora físico y previene lesiones.', type: 'passive', owned: false },
-            { id: 'entrenador', name: 'Entrenador Personal', cost: 400000, effect: 'Bonus de progreso joven (+1 OVR extra)', type: 'stats', value: 1, owned: false },
-            { id: 'reloj', name: 'Reloj de Lujo', cost: 600000, effect: 'Puro Status (+100K Seg).', type: 'vanity', owned: false },
-            { id: 'casa', name: 'Mansión', cost: 8000000, effect: 'Puro Status (+1M Seg).', type: 'vanity', owned: false }
+            { id: 'zapatillas', cost: 80000, type: 'stats', value: 1, owned: false },
+            { id: 'psicologo', cost: 150000, type: 'passive', owned: false },
+            { id: 'nutricionista', cost: 250000, type: 'passive', owned: false },
+            { id: 'entrenador', cost: 400000, type: 'stats', value: 1, owned: false },
+            { id: 'reloj', cost: 600000, type: 'vanity', owned: false },
+            { id: 'casa', cost: 8000000, type: 'vanity', owned: false }
         ];
 
         let player = {
-            name: 'APELLIDO', num: '10', hand: 'R', countryId: 'ARG', pos: 'PG',
+            name: '', num: '10', hand: 'R', countryId: 'ARG', pos: 'PG',
             age: 18, ovr: 60, maxOvr: 60, chem: 70, retired: false, followers: 1000,
             parentTeam: null
         };
         
         let stats = {
-            history: [],
-            totals: { pts: 0, ast: 0, gp: 0 },
-            rings: 0, mvp: 0, roty: 0, dpoy: 0, scoring: 0,
-            money: 0
+            history: [], totals: { pts: 0, ast: 0, gp: 0 },
+            rings: 0, mvp: 0, roty: 0, dpoy: 0, scoring: 0, money: 0
         };
 
         let currentTeam = null;
@@ -477,6 +740,7 @@
         let mgAnimId = null; 
 
         function initCreationUI() {
+            setLanguage('es'); // Default
             const cList = document.getElementById('country-list');
             dbCountries.forEach(c => {
                 const div = document.createElement('div');
@@ -490,11 +754,13 @@
         }
 
         function updateJersey() {
-            let name = document.getElementById('in-name').value.toUpperCase() || "APELLIDO";
+            let inputName = document.getElementById('in-name').value.toUpperCase();
+            let fallbackName = i18n[currentLang].lastNameLbl.toUpperCase();
+            let name = inputName || fallbackName;
             let num = document.getElementById('in-num').value || "10";
             document.getElementById('svg-name').textContent = name;
             document.getElementById('svg-num').textContent = num;
-            player.name = name;
+            player.name = inputName || fallbackName; // Store actual name
             player.num = num;
         }
 
@@ -528,7 +794,7 @@
             const tList = document.getElementById('initial-team-list');
             tList.innerHTML = '';
             let pool = dbTeams[player.countryId]?.filter(t => t.tier === 1) || [];
-            if (pool.length === 0 && dbTeams[player.countryId]) pool = dbTeams[player.countryId]; // Fallback por si no hay tier 1
+            if (pool.length === 0 && dbTeams[player.countryId]) pool = dbTeams[player.countryId];
             
             if (pool.length > 0) {
                 initialSelectedTeam = pool[0];
@@ -593,12 +859,10 @@
 
         function startGame() {
             updateJersey(); 
-            
             player.age = 17; 
             player.ovr = Math.floor(Math.random() * 4) + 53; 
             player.maxOvr = player.ovr;
             player.retired = false;
-
             currentTeam = initialSelectedTeam;
 
             document.getElementById('screen-creation').classList.add('hidden');
@@ -618,7 +882,6 @@
             document.getElementById('ui-ovr').innerText = player.ovr;
             document.getElementById('ui-money').innerText = formatMoney(stats.money);
 
-            // Colores Dinámicos del OVR (Bronce, Plata, Oro)
             const ovrShield = document.getElementById('ovr-shield');
             ovrShield.className = `rounded-2xl w-20 h-24 flex flex-col items-center justify-center shrink-0 shadow-lg relative transition-colors duration-500 ${getOvrTierClasses(player.ovr)}`;
 
@@ -626,8 +889,7 @@
                 document.getElementById('ui-team-name').innerText = currentTeam.name;
                 const logoEl = document.getElementById('ui-team-logo');
                 if (currentTeam.logoUrl) {
-                    logoEl.src = currentTeam.logoUrl;
-                    logoEl.style.display = 'block';
+                    logoEl.src = currentTeam.logoUrl; logoEl.style.display = 'block';
                     document.getElementById('ui-team-emoji').style.display = 'none';
                 } else {
                     logoEl.style.display = 'none';
@@ -643,49 +905,43 @@
 
             const chemBar = document.getElementById('ui-chem-bar');
             const playstyle = document.getElementById('ui-playstyle');
+            const t = i18n[currentLang];
             if (chemBar && playstyle) {
                 chemBar.style.width = player.chem + '%';
                 if (player.chem < 40) {
                     chemBar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
-                    playstyle.innerText = "Egoísta / Tóxico"; playstyle.className = "text-xs font-black text-red-400";
+                    playstyle.innerText = t.chemToxic; playstyle.className = "text-xs font-black text-red-400";
                 } else if (player.chem > 75) {
                     chemBar.className = "bg-green-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]";
-                    playstyle.innerText = "Líder de Equipo"; playstyle.className = "text-xs font-black text-green-400";
+                    playstyle.innerText = t.chemLeader; playstyle.className = "text-xs font-black text-green-400";
                 } else {
                     chemBar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]";
-                    playstyle.innerText = "Balanceado"; playstyle.className = "text-xs font-black text-blue-400";
+                    playstyle.innerText = t.chemBalanced; playstyle.className = "text-xs font-black text-blue-400";
                 }
             }
 
-            // TROFEOS con Hover (Tooltips)
             let trHtml = "";
-            for(let i=0; i<stats.rings; i++) trHtml += `<span title="Campeón de Liga" class="trophy-icon">🏆</span>`;
-            for(let i=0; i<stats.mvp; i++) trHtml += `<span title="MVP de Temporada" class="trophy-icon">🥇</span>`;
-            for(let i=0; i<stats.roty; i++) trHtml += `<span title="Novato del Año" class="trophy-icon">🌟</span>`;
-            for(let i=0; i<stats.dpoy; i++) trHtml += `<span title="Defensor del Año" class="trophy-icon">🛡️</span>`;
-            for(let i=0; i<stats.scoring; i++) trHtml += `<span title="Máximo Anotador" class="trophy-icon">🎯</span>`;
-            document.getElementById('ui-trophies').innerHTML = trHtml !== "" ? trHtml : `<span class="text-gray-700 text-xs italic">Sin títulos aún.</span>`;
+            for(let i=0; i<stats.rings; i++) trHtml += `<span title="Champ" class="trophy-icon">🏆</span>`;
+            for(let i=0; i<stats.mvp; i++) trHtml += `<span title="MVP" class="trophy-icon">🥇</span>`;
+            for(let i=0; i<stats.roty; i++) trHtml += `<span title="ROTY" class="trophy-icon">🌟</span>`;
+            for(let i=0; i<stats.dpoy; i++) trHtml += `<span title="DPOY" class="trophy-icon">🛡️</span>`;
+            for(let i=0; i<stats.scoring; i++) trHtml += `<span title="Scoring" class="trophy-icon">🎯</span>`;
+            document.getElementById('ui-trophies').innerHTML = trHtml !== "" ? trHtml : `<span class="text-gray-700 text-xs italic">${t.noTitles}</span>`;
         }
 
         function startYear() {
             if (player.retired) return; 
-            // Retiro forzoso si es muy mayor, o no tiene nivel
-            if (player.age >= 40 || (player.age >= 36 && player.ovr < 65)) {
-                forceRetirement(); return;
-            }
+            if (player.age >= 40 || (player.age >= 36 && player.ovr < 65)) { forceRetirement(); return; }
             player.age++;
             flowQueue = [];
             
             if(player.chem < 60) player.chem += Math.floor(Math.random() * 10) + 5;
             if(player.chem > 100) player.chem = 100;
-            
             updateUI();
 
-            // Cola de eventos
-            if (Math.random() < 0.2) flowQueue.push({ type: 'minigame' });
-            if (Math.random() < 0.35) flowQueue.push({ type: 'decision', data: getMatchEvent() });
-            if (Math.random() < 0.25) flowQueue.push({ type: 'decision', data: getPressEvent() });
-            
+            if (Math.random() < 0.32) flowQueue.push({ type: 'minigame' });
+            if (Math.random() < 0.5) flowQueue.push({ type: 'decision', data: getMatchEvent() });
+            if (Math.random() < 0.4) flowQueue.push({ type: 'decision', data: getPressEvent() });
             flowQueue.push({ type: 'decision', data: getLifeEvent() });
             flowQueue.push({ type: 'market' });
 
@@ -694,14 +950,12 @@
 
         function processFlow() {
             if (player.retired) return;
-            if (flowQueue.length === 0) {
-                simulateSeason();
-                return;
-            }
+            if (flowQueue.length === 0) { simulateSeason(); return; }
 
             const event = flowQueue[0];
             const container = document.getElementById('action-content');
             container.innerHTML = '';
+            const t = i18n[currentLang];
             
             if (event.type === 'decision') {
                 document.getElementById('action-title').innerText = event.data.title;
@@ -721,21 +975,20 @@
 
             } else if (event.type === 'market') {
                 if (player.parentTeam) {
-                    showToast("Fin de préstamo", true);
-                    currentTeam = player.parentTeam;
-                    player.parentTeam = null;
-                    updateUI();
+                    currentTeam = player.parentTeam; player.parentTeam = null; updateUI();
                 }
 
-                document.getElementById('action-title').innerText = "Mercado de pases";
-                document.getElementById('action-desc').innerText = "Fin de temporada. ¿Qué harás?";
+                document.getElementById('action-title').innerText = t.marketTitle;
+                document.getElementById('action-desc').innerText = t.marketDesc;
                 
                 let offers = generateMarketOffers();
                 let html = `<div class="flex flex-col gap-2 w-full mt-2">`;
                 offers.forEach((o, idx) => {
-                    let roleStr = o.isRenewal ? "Quedarse en" : (o.isLoan ? "Ir cedido a" : "Fichar por");
+                    let rTxt = {es: ["Quedarse en", "Ir cedido a", "Fichar por"], en: ["Stay at", "Loan to", "Sign with"], pt: ["Ficar em", "Emprestado ao", "Assinar com"]}[currentLang];
+                    let roleStr = o.isRenewal ? rTxt[0] : (o.isLoan ? rTxt[1] : rTxt[2]);
                     let borderClass = o.isRenewal ? 'border-blue-900/40' : (o.isLoan ? 'border-yellow-900/40' : 'border-[#222]');
-                    let parentStr = o.isLoan ? ` <span class="text-yellow-600 font-bold ml-1">(Préstamo)</span>` : '';
+                    let pTxt = {es: "Préstamo", en: "Loan", pt: "Empréstimo"}[currentLang];
+                    let parentStr = o.isLoan ? ` <span class="text-yellow-600 font-bold ml-1">(${pTxt})</span>` : '';
                     
                     html += `
                         <div onclick="handleMarket(${idx})" class="flex items-center justify-between bg-[#050505] hover:bg-[#1a1a1a] border ${borderClass} hover:border-gray-400 rounded-xl p-3 cursor-pointer transition-colors group">
@@ -757,8 +1010,8 @@
                 container.innerHTML = html;
                 
             } else if (event.type === 'minigame') {
-                document.getElementById('action-title').innerText = "Tiro Libre Crucial";
-                document.getElementById('action-desc').innerText = "Mueve el mouse para ángulo. Clic para fijar. Clic para tirar.";
+                document.getElementById('action-title').innerText = t.mgTitle;
+                document.getElementById('action-desc').innerText = t.mgDesc;
                 
                 container.innerHTML = `
                     <div class="relative w-full flex flex-col items-center justify-center mt-2 no-select">
@@ -770,16 +1023,483 @@
             }
         }
 
+        function getLifeEvent() {
+            const l = currentLang;
+            let pools = [
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Oferta de Patrocinio", desc: "Una marca deportiva nueva quiere firmarte." },
+                        en: { title: "Endorsement Deal", desc: "A new sports brand wants to sign you." },
+                        pt: { title: "Oferta de Patrocínio", desc: "Uma nova marca esportiva quer te contratar." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Firma marca segura", htmlDesc: "<span class='text-green-400'>✅ Seguro: +$150K</span>", effect: () => ({ money: 150000 }) },
+                            { text: "Firma marca dudosa", htmlDesc: "<span class='text-blue-400'>🍀 50%: +$500K</span> | <span class='text-red-400'>⚠️ 50%: -5 QMC</span>", effect: () => Math.random()<0.5 ? {money: 500000} : {chem: -5} }
+                        ],
+                        en: [
+                            { text: "Sign safe brand", htmlDesc: "<span class='text-green-400'>✅ Safe: +$150K</span>", effect: () => ({ money: 150000 }) },
+                            { text: "Sign risky brand", htmlDesc: "<span class='text-blue-400'>🍀 50%: +$500K</span> | <span class='text-red-400'>⚠️ 50%: -5 Chem</span>", effect: () => Math.random()<0.5 ? {money: 500000} : {chem: -5} }
+                        ],
+                        pt: [
+                            { text: "Assinar marca segura", htmlDesc: "<span class='text-green-400'>✅ Seguro: +$150K</span>", effect: () => ({ money: 150000 }) },
+                            { text: "Assinar marca duvidosa", htmlDesc: "<span class='text-blue-400'>🍀 50%: +$500K</span> | <span class='text-red-400'>⚠️ 50%: -5 QMC</span>", effect: () => Math.random()<0.5 ? {money: 500000} : {chem: -5} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => p.age < 23,
+                    data: {
+                        es: { title: "Salida nocturna de novato", desc: "Los veteranos te invitan a un club exclusivo." },
+                        en: { title: "Rookie Night Out", desc: "Veterans invite you to an exclusive club." },
+                        pt: { title: "Noite de Novato", desc: "Veteranos te convidam para um clube exclusivo." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Ir y pagar la cuenta", htmlDesc: "<span class='text-red-400'>❌ -$50K</span> | <span class='text-green-400'>✅ +15 QMC</span> | <span class='text-yellow-500'>⚠️ 40%: -1 OVR</span>", effect: () => ({ money: -50000, chem: 15, ovr: Math.random()<0.4 ? -1 : 0 }) },
+                            { text: "Descansar", htmlDesc: "<span class='text-red-400'>❌ -5 QMC</span> | <span class='text-green-400'>🍀 60%: +1 OVR</span>", effect: () => ({ chem: -5, ovr: Math.random()<0.6 ? 1 : 0 }) }
+                        ],
+                        en: [
+                            { text: "Go and pay the bill", htmlDesc: "<span class='text-red-400'>❌ -$50K</span> | <span class='text-green-400'>✅ +15 Chem</span> | <span class='text-yellow-500'>⚠️ 40%: -1 OVR</span>", effect: () => ({ money: -50000, chem: 15, ovr: Math.random()<0.4 ? -1 : 0 }) },
+                            { text: "Rest", htmlDesc: "<span class='text-red-400'>❌ -5 Chem</span> | <span class='text-green-400'>🍀 60%: +1 OVR</span>", effect: () => ({ chem: -5, ovr: Math.random()<0.6 ? 1 : 0 }) }
+                        ],
+                        pt: [
+                            { text: "Ir e pagar a conta", htmlDesc: "<span class='text-red-400'>❌ -$50K</span> | <span class='text-green-400'>✅ +15 QMC</span> | <span class='text-yellow-500'>⚠️ 40%: -1 OVR</span>", effect: () => ({ money: -50000, chem: 15, ovr: Math.random()<0.4 ? -1 : 0 }) },
+                            { text: "Descansar", htmlDesc: "<span class='text-red-400'>❌ -5 QMC</span> | <span class='text-green-400'>🍀 60%: +1 OVR</span>", effect: () => ({ chem: -5, ovr: Math.random()<0.6 ? 1 : 0 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Evento Benéfico", desc: "Te invitan a jugar en la calle por caridad." },
+                        en: { title: "Charity Event", desc: "Invited to play streetball for charity." },
+                        pt: { title: "Evento Beneficente", desc: "Convidado para jogar na rua por caridade." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Jugar duro", htmlDesc: "<span class='text-blue-400'>🍀 70%: +30K Seg</span> | <span class='text-red-400'>⚠️ 30% Lesión: -2 OVR</span>", effect: () => Math.random()<0.7 ? {followers: 30000} : {ovr: -2} },
+                            { text: "Asistir y saludar", htmlDesc: "<span class='text-green-400'>✅ Seguro: +5K Seg</span>", effect: () => ({ followers: 5000 }) }
+                        ],
+                        en: [
+                            { text: "Play hard", htmlDesc: "<span class='text-blue-400'>🍀 70%: +30K Fol</span> | <span class='text-red-400'>⚠️ 30% Injury: -2 OVR</span>", effect: () => Math.random()<0.7 ? {followers: 30000} : {ovr: -2} },
+                            { text: "Just attend", htmlDesc: "<span class='text-green-400'>✅ Safe: +5K Fol</span>", effect: () => ({ followers: 5000 }) }
+                        ],
+                        pt: [
+                            { text: "Jogar duro", htmlDesc: "<span class='text-blue-400'>🍀 70%: +30K Seg</span> | <span class='text-red-400'>⚠️ 30% Lesão: -2 OVR</span>", effect: () => Math.random()<0.7 ? {followers: 30000} : {ovr: -2} },
+                            { text: "Apenas comparecer", htmlDesc: "<span class='text-green-400'>✅ Seguro: +5K Seg</span>", effect: () => ({ followers: 5000 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => p.money > 200000,
+                    data: {
+                        es: { title: "Oportunidad de Inversión", desc: "Un amigo te ofrece un negocio 'infalible'." },
+                        en: { title: "Investment Opportunity", desc: "A friend pitches a 'foolproof' business." },
+                        pt: { title: "Oportunidade de Investimento", desc: "Um amigo oferece um negócio 'infalível'." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Invertir $100K", htmlDesc: "<span class='text-blue-400'>🍀 30%: +$400K</span> | <span class='text-red-400'>⚠️ 70%: Pierdes todo</span>", effect: () => Math.random()<0.3 ? {money: 300000} : {money: -100000} },
+                            { text: "Rechazar amablemente", htmlDesc: "<span class='text-gray-400'>Nada sucede</span>", effect: () => ({}) }
+                        ],
+                        en: [
+                            { text: "Invest $100K", htmlDesc: "<span class='text-blue-400'>🍀 30%: +$400K</span> | <span class='text-red-400'>⚠️ 70%: Lose it all</span>", effect: () => Math.random()<0.3 ? {money: 300000} : {money: -100000} },
+                            { text: "Politely decline", htmlDesc: "<span class='text-gray-400'>Nothing happens</span>", effect: () => ({}) }
+                        ],
+                        pt: [
+                            { text: "Investir $100K", htmlDesc: "<span class='text-blue-400'>🍀 30%: +$400K</span> | <span class='text-red-400'>⚠️ 70%: Perde tudo</span>", effect: () => Math.random()<0.3 ? {money: 300000} : {money: -100000} },
+                            { text: "Recusar educadamente", htmlDesc: "<span class='text-gray-400'>Nada acontece</span>", effect: () => ({}) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Oferta de Reality Show", desc: "Una productora te ofrece protagonizar un reality." },
+                        en: { title: "Reality Show Offer", desc: "A production company wants you in a reality show." },
+                        pt: { title: "Oferta de Reality Show", desc: "Uma produtora te oferece estrelar um reality." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Aceptar participar", htmlDesc: "<span class='text-green-400'>🍀 50%: +$200K, +50K Seg</span> | <span class='text-red-400'>⚠️ 50%: -10 QMC (distracción)</span>", effect: () => Math.random()<0.5 ? {money: 200000, followers: 50000} : {chem: -10} },
+                            { text: "Rechazar y enfocarse", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        en: [
+                            { text: "Accept the role", htmlDesc: "<span class='text-green-400'>🍀 50%: +$200K, +50K Fol</span> | <span class='text-red-400'>⚠️ 50%: -10 Chem (distraction)</span>", effect: () => Math.random()<0.5 ? {money: 200000, followers: 50000} : {chem: -10} },
+                            { text: "Decline and focus", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        pt: [
+                            { text: "Aceitar participar", htmlDesc: "<span class='text-green-400'>🍀 50%: +$200K, +50K Seg</span> | <span class='text-red-400'>⚠️ 50%: -10 QMC (distração)</span>", effect: () => Math.random()<0.5 ? {money: 200000, followers: 50000} : {chem: -10} },
+                            { text: "Recusar e focar", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Boda de un Amigo", desc: "Tu mejor amigo se casa en medio de la temporada." },
+                        en: { title: "Friend's Wedding", desc: "Your best friend is getting married mid-season." },
+                        pt: { title: "Casamento de um Amigo", desc: "Seu melhor amigo vai se casar em plena temporada." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Ir y viajar unos días", htmlDesc: "<span class='text-red-400'>❌ -$20K</span> | <span class='text-green-400'>✅ +10 QMC</span>", effect: () => ({ money: -20000, chem: 10 }) },
+                            { text: "No ir, priorizar el equipo", htmlDesc: "<span class='text-blue-400'>🍀 50%: +1 OVR</span> | <span class='text-red-400'>⚠️ -10 QMC</span>", effect: () => Math.random()<0.5 ? {ovr: 1, chem: -10} : {chem: -10} }
+                        ],
+                        en: [
+                            { text: "Go and travel", htmlDesc: "<span class='text-red-400'>❌ -$20K</span> | <span class='text-green-400'>✅ +10 Chem</span>", effect: () => ({ money: -20000, chem: 10 }) },
+                            { text: "Skip it, focus on team", htmlDesc: "<span class='text-blue-400'>🍀 50%: +1 OVR</span> | <span class='text-red-400'>⚠️ -10 Chem</span>", effect: () => Math.random()<0.5 ? {ovr: 1, chem: -10} : {chem: -10} }
+                        ],
+                        pt: [
+                            { text: "Ir e viajar uns dias", htmlDesc: "<span class='text-red-400'>❌ -$20K</span> | <span class='text-green-400'>✅ +10 QMC</span>", effect: () => ({ money: -20000, chem: 10 }) },
+                            { text: "Não ir, focar no time", htmlDesc: "<span class='text-blue-400'>🍀 50%: +1 OVR</span> | <span class='text-red-400'>⚠️ -10 QMC</span>", effect: () => Math.random()<0.5 ? {ovr: 1, chem: -10} : {chem: -10} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Rumor de Romance", desc: "La prensa te vincula con una celebridad." },
+                        en: { title: "Romance Rumor", desc: "The press links you to a celebrity." },
+                        pt: { title: "Rumor de Romance", desc: "A imprensa te associa a uma celebridade." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Confirmarlo públicamente", htmlDesc: "<span class='text-green-400'>✅ +80K Seg</span> | <span class='text-red-400'>⚠️ 30%: -10 QMC (drama)</span>", effect: () => ({ followers: 80000, chem: Math.random()<0.3 ? -10 : 0 }) },
+                            { text: "Negarlo todo", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        en: [
+                            { text: "Confirm it publicly", htmlDesc: "<span class='text-green-400'>✅ +80K Fol</span> | <span class='text-red-400'>⚠️ 30%: -10 Chem (drama)</span>", effect: () => ({ followers: 80000, chem: Math.random()<0.3 ? -10 : 0 }) },
+                            { text: "Deny everything", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        pt: [
+                            { text: "Confirmar publicamente", htmlDesc: "<span class='text-green-400'>✅ +80K Seg</span> | <span class='text-red-400'>⚠️ 30%: -10 QMC (drama)</span>", effect: () => ({ followers: 80000, chem: Math.random()<0.3 ? -10 : 0 }) },
+                            { text: "Negar tudo", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => p.age < 30,
+                    data: {
+                        es: { title: "Curso de Especialización", desc: "Te ofrecen un curso intensivo con un entrenador élite." },
+                        en: { title: "Specialization Course", desc: "You're offered an intensive course with an elite coach." },
+                        pt: { title: "Curso de Especialização", desc: "Oferecem um curso intensivo com um treinador de elite." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Tomar el curso", htmlDesc: "<span class='text-red-400'>❌ -$30K, -5 QMC</span> | <span class='text-green-400'>✅ +1 OVR</span>", effect: () => ({ money: -30000, chem: -5, ovr: 1 }) },
+                            { text: "Enfocarse solo en el equipo", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        en: [
+                            { text: "Take the course", htmlDesc: "<span class='text-red-400'>❌ -$30K, -5 Chem</span> | <span class='text-green-400'>✅ +1 OVR</span>", effect: () => ({ money: -30000, chem: -5, ovr: 1 }) },
+                            { text: "Focus only on the team", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        pt: [
+                            { text: "Fazer o curso", htmlDesc: "<span class='text-red-400'>❌ -$30K, -5 QMC</span> | <span class='text-green-400'>✅ +1 OVR</span>", effect: () => ({ money: -30000, chem: -5, ovr: 1 }) },
+                            { text: "Focar apenas no time", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ]
+                    }
+                }
+            ];
+            let valid = pools.filter(p => p.cond(player));
+            let pick = valid[Math.floor(Math.random() * valid.length)];
+            return { title: pick.data[l].title, desc: pick.data[l].desc, options: pick.options[l] };
+        }
+
+        function getMatchEvent() {
+            const l = currentLang;
+            let pools = [
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Última jugada", desc: "Quedan 5 segs, te marcan doble. Pierdes por 2." },
+                        en: { title: "Last Play", desc: "5 secs left, double teamed. Down by 2." },
+                        pt: { title: "Última Jogada", desc: "5 segs, marcação dupla. Perdendo por 2." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Tirar el triple heroico", htmlDesc: "<span class='text-green-400'>🍀 30%: +2 OVR, +20K Seg</span> | <span class='text-red-400'>⚠️ 70%: -1 OVR, -5 QMC</span>", effect: () => Math.random()<0.3 ? {ovr: 2, chem: 5, followers: 20000} : {ovr: -1, chem: -5} },
+                            { text: "Pasar al compañero", htmlDesc: "<span class='text-blue-400'>🍀 80%: +1 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 20%: -5 QMC</span>", effect: () => Math.random()<0.8 ? {ovr: 1, chem: 10} : {chem: -5} }
+                        ],
+                        en: [
+                            { text: "Hero Three-Pointer", htmlDesc: "<span class='text-green-400'>🍀 30%: +2 OVR, +20K Fol</span> | <span class='text-red-400'>⚠️ 70%: -1 OVR, -5 Chem</span>", effect: () => Math.random()<0.3 ? {ovr: 2, chem: 5, followers: 20000} : {ovr: -1, chem: -5} },
+                            { text: "Pass to open teammate", htmlDesc: "<span class='text-blue-400'>🍀 80%: +1 OVR, +10 Chem</span> | <span class='text-red-400'>⚠️ 20%: -5 Chem</span>", effect: () => Math.random()<0.8 ? {ovr: 1, chem: 10} : {chem: -5} }
+                        ],
+                        pt: [
+                            { text: "Arremesso Heróico", htmlDesc: "<span class='text-green-400'>🍀 30%: +2 OVR, +20K Seg</span> | <span class='text-red-400'>⚠️ 70%: -1 OVR, -5 QMC</span>", effect: () => Math.random()<0.3 ? {ovr: 2, chem: 5, followers: 20000} : {ovr: -1, chem: -5} },
+                            { text: "Passar para o colega", htmlDesc: "<span class='text-blue-400'>🍀 80%: +1 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 20%: -5 QMC</span>", effect: () => Math.random()<0.8 ? {ovr: 1, chem: 10} : {chem: -5} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Provocación del Rival", desc: "La estrella rival te empuja y te insulta." },
+                        en: { title: "Rival Provocation", desc: "Rival star pushes and insults you." },
+                        pt: { title: "Provocação do Rival", desc: "A estrela rival te empurra e te xinga." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Ignorar y jugar duro", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC, +1 OVR</span>", effect: () => ({ chem: 5, ovr: 1 }) },
+                            { text: "Devolver el empujón", htmlDesc: "<span class='text-green-400'>🍀 50%: +50K Seg</span> | <span class='text-red-400'>⚠️ 50%: Expulsado (-2 OVR)</span>", effect: () => Math.random()<0.5 ? {followers: 50000} : {ovr: -2, chem: -5} }
+                        ],
+                        en: [
+                            { text: "Ignore and play hard", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem, +1 OVR</span>", effect: () => ({ chem: 5, ovr: 1 }) },
+                            { text: "Push back", htmlDesc: "<span class='text-green-400'>🍀 50%: +50K Fol</span> | <span class='text-red-400'>⚠️ 50%: Ejected (-2 OVR)</span>", effect: () => Math.random()<0.5 ? {followers: 50000} : {ovr: -2, chem: -5} }
+                        ],
+                        pt: [
+                            { text: "Ignorar e jogar duro", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC, +1 OVR</span>", effect: () => ({ chem: 5, ovr: 1 }) },
+                            { text: "Empurrar de volta", htmlDesc: "<span class='text-green-400'>🍀 50%: +50K Seg</span> | <span class='text-red-400'>⚠️ 50%: Expulso (-2 OVR)</span>", effect: () => Math.random()<0.5 ? {followers: 50000} : {ovr: -2, chem: -5} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Dolor de Tobillo", desc: "Caíste mal en un rebote. Duele mucho." },
+                        en: { title: "Ankle Pain", desc: "Landed awkwardly on a rebound. Hurts a lot." },
+                        pt: { title: "Dor no Tornozelo", desc: "Caiu mal num rebote. Dói muito." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Pedir el cambio", htmlDesc: "<span class='text-gray-400'>✅ Seguro: Pierdes el partido (Sin bonus)</span>", effect: () => ({}) },
+                            { text: "Jugar infiltrado", htmlDesc: "<span class='text-blue-400'>🍀 60%: Héroe (+10 QMC, +1 OVR)</span> | <span class='text-red-400'>⚠️ 40%: Lesión Grave (-3 OVR)</span>", effect: () => Math.random()<0.6 ? {chem: 10, ovr: 1} : {ovr: -3} }
+                        ],
+                        en: [
+                            { text: "Ask for sub", htmlDesc: "<span class='text-gray-400'>✅ Safe: Miss game (No bonus)</span>", effect: () => ({}) },
+                            { text: "Play through pain", htmlDesc: "<span class='text-blue-400'>🍀 60%: Hero (+10 Chem, +1 OVR)</span> | <span class='text-red-400'>⚠️ 40%: Bad Injury (-3 OVR)</span>", effect: () => Math.random()<0.6 ? {chem: 10, ovr: 1} : {ovr: -3} }
+                        ],
+                        pt: [
+                            { text: "Pedir substituição", htmlDesc: "<span class='text-gray-400'>✅ Seguro: Perde o jogo (Sem bônus)</span>", effect: () => ({}) },
+                            { text: "Jogar com dor", htmlDesc: "<span class='text-blue-400'>🍀 60%: Herói (+10 QMC, +1 OVR)</span> | <span class='text-red-400'>⚠️ 40%: Lesão Grave (-3 OVR)</span>", effect: () => Math.random()<0.6 ? {chem: 10, ovr: 1} : {ovr: -3} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Falta Técnica Injusta", desc: "El árbitro te cobra una falta técnica que no fue." },
+                        en: { title: "Unfair Technical Foul", desc: "The ref calls a technical that wasn't there." },
+                        pt: { title: "Falta Técnica Injusta", desc: "O árbitro marca uma técnica que não existiu." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Reclamar con fuerza", htmlDesc: "<span class='text-green-400'>🍀 50%: Ovación (+20K Seg)</span> | <span class='text-red-400'>⚠️ 50%: Expulsado (-2 OVR, -5 QMC)</span>", effect: () => Math.random()<0.5 ? {followers: 20000} : {ovr: -2, chem: -5} },
+                            { text: "Morderse la lengua", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        en: [
+                            { text: "Argue hard", htmlDesc: "<span class='text-green-400'>🍀 50%: Crowd pop (+20K Fol)</span> | <span class='text-red-400'>⚠️ 50%: Ejected (-2 OVR, -5 Chem)</span>", effect: () => Math.random()<0.5 ? {followers: 20000} : {ovr: -2, chem: -5} },
+                            { text: "Bite your tongue", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        pt: [
+                            { text: "Reclamar com força", htmlDesc: "<span class='text-green-400'>🍀 50%: Ovação (+20K Seg)</span> | <span class='text-red-400'>⚠️ 50%: Expulso (-2 OVR, -5 QMC)</span>", effect: () => Math.random()<0.5 ? {followers: 20000} : {ovr: -2, chem: -5} },
+                            { text: "Morder a língua", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Tapón Humillante", desc: "El rival te clavó un mate encima. Las redes explotan." },
+                        en: { title: "Posterized", desc: "The rival dunked all over you. The internet explodes." },
+                        pt: { title: "Enterrada Humilhante", desc: "O rival te tapou com uma cravada. As redes explodem." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Buscar la revancha ya", htmlDesc: "<span class='text-blue-400'>🍀 50%: +2 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 50%: Falta dura (-1 OVR, -10 QMC)</span>", effect: () => Math.random()<0.5 ? {ovr: 2, chem: 10} : {ovr: -1, chem: -10} },
+                            { text: "Reírse y seguir jugando", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +3 QMC, +10K Seg</span>", effect: () => ({ chem: 3, followers: 10000 }) }
+                        ],
+                        en: [
+                            { text: "Seek revenge now", htmlDesc: "<span class='text-blue-400'>🍀 50%: +2 OVR, +10 Chem</span> | <span class='text-red-400'>⚠️ 50%: Hard foul (-1 OVR, -10 Chem)</span>", effect: () => Math.random()<0.5 ? {ovr: 2, chem: 10} : {ovr: -1, chem: -10} },
+                            { text: "Laugh it off", htmlDesc: "<span class='text-blue-400'>✅ Safe: +3 Chem, +10K Fol</span>", effect: () => ({ chem: 3, followers: 10000 }) }
+                        ],
+                        pt: [
+                            { text: "Buscar revanche já", htmlDesc: "<span class='text-blue-400'>🍀 50%: +2 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 50%: Falta dura (-1 OVR, -10 QMC)</span>", effect: () => Math.random()<0.5 ? {ovr: 2, chem: 10} : {ovr: -1, chem: -10} },
+                            { text: "Rir e seguir jogando", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +3 QMC, +10K Seg</span>", effect: () => ({ chem: 3, followers: 10000 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Prórroga Agotadora", desc: "Tus piernas ya no responden y hay que jugar un extra." },
+                        en: { title: "Exhausting Overtime", desc: "Your legs are dead and there's an extra period to play." },
+                        pt: { title: "Prorrogação Exaustiva", desc: "Suas pernas não respondem e tem um extra pela frente." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Jugar al límite", htmlDesc: "<span class='text-blue-400'>🍀 60%: +2 OVR</span> | <span class='text-red-400'>⚠️ 40%: Lesión (-2 OVR)</span>", effect: () => Math.random()<0.6 ? {ovr: 2} : {ovr: -2} },
+                            { text: "Pedir minutos de descanso", htmlDesc: "<span class='text-gray-400'>✅ Seguro: -5 QMC (el técnico se enoja)</span>", effect: () => ({ chem: -5 }) }
+                        ],
+                        en: [
+                            { text: "Push to the limit", htmlDesc: "<span class='text-blue-400'>🍀 60%: +2 OVR</span> | <span class='text-red-400'>⚠️ 40%: Injury (-2 OVR)</span>", effect: () => Math.random()<0.6 ? {ovr: 2} : {ovr: -2} },
+                            { text: "Ask for a rest", htmlDesc: "<span class='text-gray-400'>✅ Safe: -5 Chem (coach is annoyed)</span>", effect: () => ({ chem: -5 }) }
+                        ],
+                        pt: [
+                            { text: "Jogar no limite", htmlDesc: "<span class='text-blue-400'>🍀 60%: +2 OVR</span> | <span class='text-red-400'>⚠️ 40%: Lesão (-2 OVR)</span>", effect: () => Math.random()<0.6 ? {ovr: 2} : {ovr: -2} },
+                            { text: "Pedir descanso", htmlDesc: "<span class='text-gray-400'>✅ Seguro: -5 QMC (o técnico se irrita)</span>", effect: () => ({ chem: -5 }) }
+                        ]
+                    }
+                }
+            ];
+            let valid = pools.filter(p => p.cond(player));
+            let pick = valid[Math.floor(Math.random() * valid.length)];
+            return { title: pick.data[l].title, desc: pick.data[l].desc, options: pick.options[l] };
+        }
+
+        function getPressEvent() {
+            const l = currentLang;
+            let pools = [
+                {
+                    cond: (p) => p.chem < 50,
+                    data: {
+                        es: { title: "Rueda de Prensa: Crisis", desc: "Se rumorea que el vestuario está quebrado." },
+                        en: { title: "Press: Crisis", desc: "Rumors say the locker room is broken." },
+                        pt: { title: "Imprensa: Crise", desc: "Rumores dizem que o vestiário rachou." }
+                    },
+                    options: {
+                        es: [
+                            { text: "'Es culpa de todos'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +15 QMC</span>", effect: () => ({chem: 15}) },
+                            { text: "'Yo hago mi trabajo'", htmlDesc: "<span class='text-red-400'>❌ -20 QMC</span> | <span class='text-green-400'>🍀 50%: +30K Seg</span>", effect: () => ({chem: -20, followers: Math.random()<0.5 ? 30000 : 0}) }
+                        ],
+                        en: [
+                            { text: "'We all must improve'", htmlDesc: "<span class='text-blue-400'>✅ Safe: +15 Chem</span>", effect: () => ({chem: 15}) },
+                            { text: "'I do my job'", htmlDesc: "<span class='text-red-400'>❌ -20 Chem</span> | <span class='text-green-400'>🍀 50%: +30K Fol</span>", effect: () => ({chem: -20, followers: Math.random()<0.5 ? 30000 : 0}) }
+                        ],
+                        pt: [
+                            { text: "'A culpa é de todos'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +15 QMC</span>", effect: () => ({chem: 15}) },
+                            { text: "'Eu faço meu trabalho'", htmlDesc: "<span class='text-red-400'>❌ -20 QMC</span> | <span class='text-green-400'>🍀 50%: +30K Seg</span>", effect: () => ({chem: -20, followers: Math.random()<0.5 ? 30000 : 0}) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Entrevista Post-Partido", desc: "Gran partido hoy, ¿a quién se lo dedicas?" },
+                        en: { title: "Post-Game Interview", desc: "Great game today, who do you dedicate it to?" },
+                        pt: { title: "Entrevista Pós-Jogo", desc: "Grande jogo, para quem você dedica?" }
+                    },
+                    options: {
+                        es: [
+                            { text: "A los fans", htmlDesc: "<span class='text-green-400'>✅ Seguro: +15K Seg</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "A mis compañeros", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC</span>", effect: () => ({chem: 10}) }
+                        ],
+                        en: [
+                            { text: "To the fans", htmlDesc: "<span class='text-green-400'>✅ Safe: +15K Fol</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "To my teammates", htmlDesc: "<span class='text-blue-400'>✅ Safe: +10 Chem</span>", effect: () => ({chem: 10}) }
+                        ],
+                        pt: [
+                            { text: "Para os fãs", htmlDesc: "<span class='text-green-400'>✅ Seguro: +15K Seg</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "Aos colegas", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC</span>", effect: () => ({chem: 10}) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Rumores de Traspaso", desc: "Dicen que el equipo quiere cambiarte." },
+                        en: { title: "Trade Rumors", desc: "Word is the team wants to trade you." },
+                        pt: { title: "Rumores de Troca", desc: "Dizem que o time quer te trocar." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Jurar lealtad al club", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC, +5K Seg</span>", effect: () => ({ chem: 10, followers: 5000 }) },
+                            { text: "Guiñar a otros equipos", htmlDesc: "<span class='text-red-400'>❌ -15 QMC</span> | <span class='text-green-400'>✅ +20K Seg</span>", effect: () => ({ chem: -15, followers: 20000 }) }
+                        ],
+                        en: [
+                            { text: "Pledge loyalty", htmlDesc: "<span class='text-blue-400'>✅ Safe: +10 Chem, +5K Fol</span>", effect: () => ({ chem: 10, followers: 5000 }) },
+                            { text: "Wink at other teams", htmlDesc: "<span class='text-red-400'>❌ -15 Chem</span> | <span class='text-green-400'>✅ +20K Fol</span>", effect: () => ({ chem: -15, followers: 20000 }) }
+                        ],
+                        pt: [
+                            { text: "Jurar lealdade", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC, +5K Seg</span>", effect: () => ({ chem: 10, followers: 5000 }) },
+                            { text: "Flertar com outros", htmlDesc: "<span class='text-red-400'>❌ -15 QMC</span> | <span class='text-green-400'>✅ +20K Seg</span>", effect: () => ({ chem: -15, followers: 20000 }) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Comparación con una Leyenda", desc: "Un periodista te compara con un ícono histórico." },
+                        en: { title: "Compared to a Legend", desc: "A reporter compares you to a historic icon." },
+                        pt: { title: "Comparação com uma Lenda", desc: "Um jornalista te compara a um ícone histórico." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Aceptar con humildad", htmlDesc: "<span class='text-green-400'>✅ Seguro: +15K Seg</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "Decir que ya lo superaste", htmlDesc: "<span class='text-green-400'>🍀 50%: +40K Seg</span> | <span class='text-red-400'>⚠️ 50%: -10 QMC (arrogante)</span>", effect: () => Math.random()<0.5 ? {followers: 40000} : {chem: -10} }
+                        ],
+                        en: [
+                            { text: "Accept humbly", htmlDesc: "<span class='text-green-400'>✅ Safe: +15K Fol</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "Say you've surpassed them", htmlDesc: "<span class='text-green-400'>🍀 50%: +40K Fol</span> | <span class='text-red-400'>⚠️ 50%: -10 Chem (cocky)</span>", effect: () => Math.random()<0.5 ? {followers: 40000} : {chem: -10} }
+                        ],
+                        pt: [
+                            { text: "Aceitar com humildade", htmlDesc: "<span class='text-green-400'>✅ Seguro: +15K Seg</span>", effect: () => ({ followers: 15000 }) },
+                            { text: "Dizer que já superou", htmlDesc: "<span class='text-green-400'>🍀 50%: +40K Seg</span> | <span class='text-red-400'>⚠️ 50%: -10 QMC (arrogante)</span>", effect: () => Math.random()<0.5 ? {followers: 40000} : {chem: -10} }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Pregunta Incómoda sobre el Sueldo", desc: "Un cronista te pregunta directamente cuánto ganás." },
+                        en: { title: "Awkward Salary Question", desc: "A reporter asks straight up how much you earn." },
+                        pt: { title: "Pergunta Incômoda sobre o Salário", desc: "Um repórter pergunta direto quanto você ganha." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Responder con honestidad", htmlDesc: "<span class='text-green-400'>✅ +10K Seg</span> | <span class='text-red-400'>❌ -5 QMC (compañeros celosos)</span>", effect: () => ({ followers: 10000, chem: -5 }) },
+                            { text: "Evadir la pregunta", htmlDesc: "<span class='text-gray-400'>Nada sucede</span>", effect: () => ({}) }
+                        ],
+                        en: [
+                            { text: "Answer honestly", htmlDesc: "<span class='text-green-400'>✅ +10K Fol</span> | <span class='text-red-400'>❌ -5 Chem (jealous teammates)</span>", effect: () => ({ followers: 10000, chem: -5 }) },
+                            { text: "Dodge the question", htmlDesc: "<span class='text-gray-400'>Nothing happens</span>", effect: () => ({}) }
+                        ],
+                        pt: [
+                            { text: "Responder com honestidade", htmlDesc: "<span class='text-green-400'>✅ +10K Seg</span> | <span class='text-red-400'>❌ -5 QMC (colegas com ciúmes)</span>", effect: () => ({ followers: 10000, chem: -5 }) },
+                            { text: "Fugir da pergunta", htmlDesc: "<span class='text-gray-400'>Nada acontece</span>", effect: () => ({}) }
+                        ]
+                    }
+                },
+                {
+                    cond: (p) => true,
+                    data: {
+                        es: { title: "Clip Viral", desc: "Un video tuyo bailando en el vestuario se hizo viral." },
+                        en: { title: "Viral Clip", desc: "A video of you dancing in the locker room went viral." },
+                        pt: { title: "Clipe Viral", desc: "Um vídeo seu dançando no vestiário viralizou." }
+                    },
+                    options: {
+                        es: [
+                            { text: "Aprovechar la fama", htmlDesc: "<span class='text-green-400'>🍀 60%: +100K Seg</span> | <span class='text-red-400'>⚠️ 40%: -10 QMC (distracción)</span>", effect: () => Math.random()<0.6 ? {followers: 100000} : {chem: -10} },
+                            { text: "Mantener perfil bajo", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        en: [
+                            { text: "Ride the wave", htmlDesc: "<span class='text-green-400'>🍀 60%: +100K Fol</span> | <span class='text-red-400'>⚠️ 40%: -10 Chem (distraction)</span>", effect: () => Math.random()<0.6 ? {followers: 100000} : {chem: -10} },
+                            { text: "Keep a low profile", htmlDesc: "<span class='text-blue-400'>✅ Safe: +5 Chem</span>", effect: () => ({ chem: 5 }) }
+                        ],
+                        pt: [
+                            { text: "Aproveitar a fama", htmlDesc: "<span class='text-green-400'>🍀 60%: +100K Seg</span> | <span class='text-red-400'>⚠️ 40%: -10 QMC (distração)</span>", effect: () => Math.random()<0.6 ? {followers: 100000} : {chem: -10} },
+                            { text: "Manter perfil baixo", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +5 QMC</span>", effect: () => ({ chem: 5 }) }
+                        ]
+                    }
+                }
+            ];
+            let valid = pools.filter(p => p.cond(player));
+            let pick = valid[Math.floor(Math.random() * valid.length)];
+            return { title: pick.data[l].title, desc: pick.data[l].desc, options: pick.options[l] };
+        }
+
         function handleDecisionClick(idx) {
             const opt = flowQueue[0].data.options[idx];
-            let result = opt.effect(); // Se calculan las probabilidades ahora
+            let result = opt.effect(); 
             
-            // Reemplazar contenido con animación de ruleta (Sorteo)
             const container = document.getElementById('action-content');
+            let spinTxt = {es: "Sorteando Destino...", en: "Rolling Fate...", pt: "Sorteando Destino..."}[currentLang];
             container.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-8 space-y-4">
                     <div class="text-5xl anim-roulette" id="roulette-icon">🎲</div>
-                    <div class="text-sm font-bold text-yellow-400 uppercase tracking-widest">Sorteando Destino...</div>
+                    <div class="text-sm font-bold text-yellow-400 uppercase tracking-widest">${spinTxt}</div>
                 </div>
             `;
             
@@ -789,7 +1509,7 @@
                 ticks++;
                 document.getElementById('roulette-icon').innerText = rIcons[ticks % rIcons.length];
                 
-                if (ticks > 15) { // 1.5 segundos aprox
+                if (ticks > 15) { 
                     clearInterval(rInterv);
                     applyDecisionResult(result);
                 }
@@ -809,7 +1529,8 @@
             if (result.chem) {
                 player.chem += result.chem;
                 player.chem = Math.max(0, Math.min(100, player.chem)); 
-                msgs.push(result.chem > 0 ? `+${result.chem} QMC` : `${result.chem} QMC`);
+                let cTxt = {es:"QMC", en:"CHEM", pt:"QMC"}[currentLang];
+                msgs.push(result.chem > 0 ? `+${result.chem} ${cTxt}` : `${result.chem} ${cTxt}`);
                 if(result.chem < 0) isGood = false;
             }
             if (result.money) {
@@ -818,7 +1539,8 @@
             }
             if (result.followers) {
                 player.followers += result.followers;
-                msgs.push(`+${formatFollowers(result.followers)} Seg`);
+                let sTxt = {es:"Seg", en:"Fol", pt:"Seg"}[currentLang];
+                msgs.push(`+${formatFollowers(result.followers)} ${sTxt}`);
             }
 
             let resultText = msgs.length > 0 ? msgs.join(' | ') : "Neutral";
@@ -836,81 +1558,7 @@
             if (msgs.length > 0) showToast(resultText, isGood);
             updateUI();
             
-            // Pausa breve para leer el resultado antes de pasar al siguiente
             setTimeout(() => { nextFlow(); }, 1200);
-        }
-
-        function getLifeEvent() {
-            let pools = [
-                {
-                    cond: (p) => true,
-                    title: "Oferta de Patrocinio Dudoso",
-                    desc: "Una marca te ofrece dinero, pero el DT dice que da mala imagen.",
-                    options: [
-                        { text: "Aceptar contrato", htmlDesc: "<span class='text-green-400'>✅ Seguro: +$250K, +10K Seg</span> | <span class='text-red-400'>❌ Seguro: -10 QMC</span> | <span class='text-yellow-500'>⚠️ 30% Riesgo: -1 OVR</span>", 
-                          effect: () => ({ money: 250000, followers: 10000, chem: -10, ovr: Math.random()<0.3 ? -1 : 0 }) },
-                        { text: "Rechazar y entrenar", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +2 QMC</span> | <span class='text-green-400'>🍀 50% Prob: +1 OVR</span>", 
-                          effect: () => ({ chem: 2, ovr: Math.random()<0.5 ? 1 : 0 }) }
-                    ]
-                },
-                {
-                    cond: (p) => p.age < 23,
-                    title: "Salida nocturna de novato",
-                    desc: "Los veteranos te invitan a un club exclusivo. Mañana hay práctica.",
-                    options: [
-                        { text: "Ir y pagar la cuenta", htmlDesc: "<span class='text-red-400'>❌ Seguro: -$50K</span> | <span class='text-green-400'>✅ Seguro: +15 QMC</span> | <span class='text-yellow-500'>⚠️ 40% Riesgo: -1 OVR</span>", 
-                          effect: () => ({ money: -50000, chem: 15, ovr: Math.random()<0.4 ? -1 : 0 }) },
-                        { text: "Quedarse descansando", htmlDesc: "<span class='text-red-400'>❌ Seguro: -5 QMC</span> | <span class='text-green-400'>🍀 60% Prob: +1 OVR</span>", 
-                          effect: () => ({ chem: -5, ovr: Math.random()<0.6 ? 1 : 0 }) }
-                    ]
-                }
-            ];
-            let validPools = pools.filter(p => p.cond(player));
-            return validPools[Math.floor(Math.random() * validPools.length)];
-        }
-
-        function getMatchEvent() {
-            let pools = [
-                {
-                    cond: (p) => true,
-                    title: "Última jugada",
-                    desc: "Perdés por 2. Quedan 5 segundos, te están marcando doble.",
-                    options: [
-                        { text: "Tirar el triple heroico", htmlDesc: "<span class='text-green-400'>🍀 30% Héroe: +2 OVR, +20K Seg</span> | <span class='text-red-400'>⚠️ 70% Villano: -1 OVR, -5 QMC</span>", 
-                          effect: () => Math.random()<0.3 ? {ovr: 2, chem: 5, followers: 20000} : {ovr: -1, chem: -5} },
-                        { text: "Pasar al compañero abierto", htmlDesc: "<span class='text-blue-400'>🍀 80% Asistencia: +1 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 20% Falla: -5 QMC</span>", 
-                          effect: () => Math.random()<0.8 ? {ovr: 1, chem: 10} : {chem: -5} }
-                    ]
-                }
-            ];
-            let validPools = pools.filter(p => p.cond(player));
-            return validPools[Math.floor(Math.random() * validPools.length)];
-        }
-
-        function getPressEvent() {
-            let pools = [
-                {
-                    cond: (p) => p.chem < 50,
-                    title: "Rueda de Prensa: Crisis",
-                    desc: "Periodista: 'Se rumorea que el equipo está quebrado. ¿Qué pasa?'",
-                    options: [
-                        { text: "'Es culpa de todos, hay que mejorar unidos'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +15 QMC</span>", effect: () => ({chem: 15}) },
-                        { text: "'Yo hago mi trabajo, pregunten a los demás'", htmlDesc: "<span class='text-red-400'>❌ Seguro: -20 QMC</span> | <span class='text-green-400'>🍀 50% Polémica: +30K Seg</span>", 
-                          effect: () => ({chem: -20, followers: Math.random()<0.5 ? 30000 : 0}) },
-                    ]
-                },
-                {
-                    cond: (p) => true,
-                    title: "Rueda de Prensa",
-                    desc: "Periodista: 'Gran victoria hoy, ¿a quién se la dedicas?'",
-                    options: [
-                        { text: "'A los fans, son los mejores'", htmlDesc: "<span class='text-green-400'>✅ Seguro: +10K Seg</span>", effect: () => ({ followers: 10000 }) },
-                        { text: "'A mis compañeros'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC</span>", effect: () => ({chem: 10}) }
-                    ]
-                }
-            ];
-            let validPools = pools.filter(p => p.cond(player));
-            return validPools[Math.floor(Math.random() * validPools.length)];
         }
 
         function calcSalary(team, ovr) {
@@ -919,9 +1567,8 @@
                 if(team.tier === 4) base = 8000000;
                 else if(team.tier === 3) base = 5000000;
                 else base = 2500000;
-            } else if (team.league === "G-League") {
-                base = 80000;
-            } else if (team.tier === 3) base = 800000;
+            } else if (team.league === "G-League") { base = 80000; } 
+            else if (team.tier === 3) base = 800000;
             else if (team.tier === 2) base = 350000;
             
             let modifier = Math.max(0.3, 1 + ((ovr - 60) * 0.06));
@@ -982,7 +1629,8 @@
             const offer = flowQueue[0].tempOffers[idx];
             if (currentTeam.name !== offer.team.name) {
                 player.chem = 50; 
-                showToast("Nuevo Vestuario: QMC a 50", true);
+                let t = {es:"Nuevo Vestuario: QMC a 50", en:"New Locker Room: Chem to 50", pt:"Novo Vestiário: QMC a 50"}[currentLang];
+                showToast(t, true);
             }
             if (offer.isLoan) player.parentTeam = offer.parent;
             
@@ -1002,21 +1650,16 @@
         let mgAngle = -Math.PI / 2;
         let mgPower = 0;
         let mgPowerDir = 3.5;
-        let handlersAdded = false;
 
         function initMinigame() {
             canvas = document.getElementById('hoop-canvas');
             if(!canvas) return;
             
-            // LIMPIEZA TOTAL: Cancelar animaciones previas
             if(mgAnimId) cancelAnimationFrame(mgAnimId);
             mgAnimId = null;
             
-            mgState = 0; 
-            mgPower = 0; 
-            mgAngle = -Math.PI / 2;
+            mgState = 0; mgPower = 0; mgAngle = -Math.PI / 2;
             
-            // Reemplazar el elemento para eliminar cualquier event listener zombie
             const newCanvas = canvas.cloneNode(true);
             canvas.parentNode.replaceChild(newCanvas, canvas);
             canvas = newCanvas;
@@ -1051,8 +1694,7 @@
 
         function drawBackground() {
             if(!canvas) return;
-            ctx.fillStyle = "#0f0f0f";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0f0f"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#ea580c"; ctx.fillRect(180, 40, 40, 5); 
             ctx.fillStyle = "#334155"; ctx.fillRect(185, 45, 30, 15); 
             ctx.fillStyle = "#475569"; ctx.fillRect(190, 170, 20, 20);
@@ -1102,7 +1744,8 @@
                         fb.innerText = "¡SWISH! +1 OVR"; fb.className = "absolute top-2 text-sm font-black h-5 text-green-400 drop-shadow-md z-10 w-full text-center";
                         player.ovr += 1; showToast("+1 OVR", true);
                     } else {
-                        fb.innerText = "FALLO"; fb.className = "absolute top-2 text-sm font-black h-5 text-red-500 drop-shadow-md z-10 w-full text-center";
+                        let miss = {es:"FALLO", en:"MISS", pt:"FALHA"}[currentLang];
+                        fb.innerText = miss; fb.className = "absolute top-2 text-sm font-black h-5 text-red-500 drop-shadow-md z-10 w-full text-center";
                     }
                     setTimeout(() => nextFlow(), 1000);
                     return; 
@@ -1122,7 +1765,6 @@
             let hasTrain = shopItems.find(i=>i.id==='entrenador').owned;
             let hasNutri = shopItems.find(i=>i.id==='nutricionista').owned;
 
-            // 1. CÁLCULO DE ESTADÍSTICAS Y RENDIMIENTO (con el OVR actual)
             let relativeLvl = player.ovr - currentTeam.level;
             let gp = currentTeam.league === 'NBA' ? 82 : 40;
             
@@ -1149,7 +1791,6 @@
             stats.totals.ast += tAst;
             stats.totals.gp += gp;
 
-            // TROFEOS Y PREMIOS INDIVIDUALES
             let isChamp = (relativeLvl > 2 && Math.random() < (0.3 + (chemFactor*0.04))) || (relativeLvl > -3 && Math.random() < (0.05 + (chemFactor*0.02)));
             let isMvp = (ppg > 28 || (ppg>22 && apg>10)) && Math.random() < 0.5;
             let isRoty = (player.age === 18 || stats.totals.gp === gp) && gp > 15 && ppg > 15 && Math.random() < 0.6;
@@ -1162,53 +1803,27 @@
             if(isDpoy) stats.dpoy++;
             if(isScoring) stats.scoring++;
 
-            // 2. CRECIMIENTO DE MEDIA (OVR) BASADO EN EDAD + RENDIMIENTO
             let ovrDelta = 0;
-            
-            // Base por edad
-            if (player.age <= 21) {
-                ovrDelta = Math.floor(Math.random() * 3) + 1; // 1 a 3
-                if(hasTrain) ovrDelta += 1;
-            } else if (player.age <= 25) {
-                ovrDelta = Math.floor(Math.random() * 2); // 0 a 1
-                if(hasTrain) ovrDelta += 1;
-            } else if (player.age >= 31 && player.age <= 33) {
-                ovrDelta = Math.floor(Math.random() * -3); // -2 a 0
-                if(hasNutri || hasPsy) ovrDelta += 1;
-                if(ovrDelta > 0) ovrDelta = 0; 
-            } else if (player.age >= 34) {
-                ovrDelta = Math.floor(Math.random() * -4) - 1; // -4 a -1
-                if(hasPsy) ovrDelta += 1;
-                if(ovrDelta > 0) ovrDelta = 0;
-            } else {
-                ovrDelta = 0; // Prime (26-30) base neutral, depende del rendimiento
-            }
+            if (player.age <= 21) { ovrDelta = Math.floor(Math.random() * 3) + 1; if(hasTrain) ovrDelta += 1; } 
+            else if (player.age <= 25) { ovrDelta = Math.floor(Math.random() * 2); if(hasTrain) ovrDelta += 1; } 
+            else if (player.age >= 31 && player.age <= 33) { ovrDelta = Math.floor(Math.random() * -3); if(hasNutri || hasPsy) ovrDelta += 1; if(ovrDelta > 0) ovrDelta = 0; } 
+            else if (player.age >= 34) { ovrDelta = Math.floor(Math.random() * -4) - 1; if(hasPsy) ovrDelta += 1; if(ovrDelta > 0) ovrDelta = 0; }
 
-            // Bonus por rendimiento
             let perfBonus = 0;
             if (ppg > 20) perfBonus += 1;
             if (ppg > 28) perfBonus += 1;
             if (apg > 8) perfBonus += 1;
             if (isMvp) perfBonus += 1;
             if (isDpoy) perfBonus += 1;
-            
-            // Proyección estrella (Joven con gran rendimiento)
             if (player.age <= 23 && perfBonus > 0) perfBonus += 1;
-            
-            // Castigo por mal rendimiento (si no es veterano)
-            if (player.age < 30 && ppg < 8 && apg < 3) {
-                ovrDelta -= 1;
-            }
+            if (player.age < 30 && ppg < 8 && apg < 3) ovrDelta -= 1;
 
             ovrDelta += perfBonus;
-
-            // Limitar saltos absurdos de nivel
             if (ovrDelta > 5) ovrDelta = 5;
             if (ovrDelta < -5) ovrDelta = -5;
 
-            // 3. APLICAR CAMBIOS
             player.ovr += ovrDelta;
-            if(player.ovr > 99) player.ovr = 99; // Cap máximo
+            if(player.ovr > 99) player.ovr = 99; 
             if(player.ovr > player.maxOvr) player.maxOvr = player.ovr;
             
             if (player.ovr > 85) player.followers += Math.floor(Math.random() * 500000) + 100000;
@@ -1218,8 +1833,9 @@
             addHistoryRow(gp, tPts, tAst, isChamp, isMvp, isRoty, isDpoy, isScoring);
             updateUI();
             
-            document.getElementById('action-title').innerText = "Simulando Temporada...";
-            document.getElementById('action-desc').innerText = "Calculando estadísticas y resultados.";
+            const t = i18n[currentLang];
+            document.getElementById('action-title').innerText = t.simTitle;
+            document.getElementById('action-desc').innerText = t.simDesc;
             document.getElementById('action-content').innerHTML = `<div class="flex justify-center my-4"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>`;
 
             setTimeout(() => { startYear(); }, 800); 
@@ -1231,11 +1847,11 @@
             row.className = "flex items-center text-xs py-2 px-4 border-b border-[#222] hover:bg-[#1a1a1a] transition-colors";
             
             let icons = "";
-            if(isChamp) icons += `<span title="Campeón" class="cursor-help">🏆</span>`;
+            if(isChamp) icons += `<span title="Champ" class="cursor-help">🏆</span>`;
             if(isMvp) icons += `<span title="MVP" class="cursor-help">🥇</span>`;
             if(isRoty) icons += `<span title="ROTY" class="cursor-help">🌟</span>`;
             if(isDpoy) icons += `<span title="DPOY" class="cursor-help">🛡️</span>`;
-            if(isScoring) icons += `<span title="Scoring Champ" class="cursor-help">🎯</span>`;
+            if(isScoring) icons += `<span title="Scoring" class="cursor-help">🎯</span>`;
 
             let logoHtml = currentTeam.logoUrl
                 ? `<img src="${currentTeam.logoUrl}" class="w-4 h-4 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span class="hidden">${currentTeam.emoji}</span>`
@@ -1262,22 +1878,28 @@
         
         function renderShop() {
             const container = document.getElementById('shop-list-modal');
-            container.innerHTML = `<div class="text-right text-sm text-gray-400 mb-4">Balance: <span class="text-green-400 font-bold">${formatMoney(stats.money)}</span></div>`;
-
-            shopItems.forEach(item => {
+            let balTxt = {es:"Balance:", en:"Balance:", pt:"Saldo:"}[currentLang];
+            container.innerHTML = `<div class="text-right text-sm text-gray-400 mb-4">${balTxt} <span class="text-green-400 font-bold">${formatMoney(stats.money)}</span></div>`;
+            
+            const locItems = getShopItemsLocale();
+            shopItems.forEach((item, idx) => {
+                const loc = locItems[idx];
                 const row = document.createElement('div');
                 row.className = "flex items-center justify-between gap-3 bg-[#050505] border border-[#222] rounded-xl p-4";
+                
+                let btnTxt = item.owned ? {es:"COMPRADO", en:"OWNED", pt:"COMPRADO"}[currentLang] : formatMoney(item.cost);
+                
                 row.innerHTML = `
                     <div class="flex-1">
-                        <p class="text-sm font-bold text-white">${item.name}</p>
-                        <p class="text-[10px] text-gray-500">${item.effect}</p>
+                        <p class="text-sm font-bold text-white">${loc.name}</p>
+                        <p class="text-[10px] text-gray-500">${loc.effect}</p>
                     </div>
                     <button ${item.owned || stats.money < item.cost ? 'disabled' : ''} onclick="buyItem('${item.id}')"
                         class="text-xs font-black px-4 py-2 rounded-lg transition-colors 
                         ${item.owned ? 'bg-[#222] text-gray-600 cursor-not-allowed' 
                         : stats.money < item.cost ? 'bg-[#111] border border-[#333] text-gray-600 cursor-not-allowed' 
                         : 'bg-white text-black hover:bg-gray-200'}">
-                        ${item.owned ? 'COMPRADO' : formatMoney(item.cost)}
+                        ${btnTxt}
                     </button>
                 `;
                 container.appendChild(row);
@@ -1297,7 +1919,8 @@
             if (item.type === 'vanity') {
                 let newSegs = id === 'casa' ? 1000000 : 100000;
                 player.followers += newSegs;
-                showToast(`+${formatFollowers(newSegs)} Seg`, true);
+                let sTxt = {es:"Seg", en:"Fol", pt:"Seg"}[currentLang];
+                showToast(`+${formatFollowers(newSegs)} ${sTxt}`, true);
             }
             renderShop(); updateUI();
         }
@@ -1317,15 +1940,16 @@
             document.getElementById('ret-pts').innerText = stats.totals.pts;
             document.getElementById('ret-ast').innerText = stats.totals.ast;
 
-            // Insertar palmarés y seguidores
             const awContainer = document.getElementById('ret-awards-container');
+            let tTxt = {es:"Seguidores", en:"Followers", pt:"Seguidores"}[currentLang];
+            let aTxt = {es:"Anillos", en:"Rings", pt:"Anéis"}[currentLang];
             awContainer.innerHTML = `
-                <div class="text-center"><div class="text-4xl mb-2">🏆</div><p class="text-xs text-gray-500 font-bold uppercase">Anillos</p><p class="text-2xl font-black text-white">${stats.rings}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🏆</div><p class="text-xs text-gray-500 font-bold uppercase">${aTxt}</p><p class="text-2xl font-black text-white">${stats.rings}</p></div>
                 <div class="text-center"><div class="text-4xl mb-2">🥇</div><p class="text-xs text-gray-500 font-bold uppercase">MVPs</p><p class="text-2xl font-black text-white">${stats.mvp}</p></div>
                 <div class="text-center"><div class="text-4xl mb-2">🌟</div><p class="text-xs text-gray-500 font-bold uppercase">ROTY</p><p class="text-2xl font-black text-white">${stats.roty}</p></div>
                 <div class="text-center"><div class="text-4xl mb-2">🛡️</div><p class="text-xs text-gray-500 font-bold uppercase">DPOY</p><p class="text-2xl font-black text-white">${stats.dpoy}</p></div>
-                <div class="text-center"><div class="text-4xl mb-2">🎯</div><p class="text-xs text-gray-500 font-bold uppercase">Scoring Ch.</p><p class="text-2xl font-black text-white">${stats.scoring}</p></div>
-                <div class="text-center ml-4 border-l border-[#333] pl-6"><div class="text-3xl mb-2">📱</div><p class="text-xs text-gray-500 font-bold uppercase">Seguidores</p><p class="text-xl font-black text-blue-400">${formatFollowers(player.followers)}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🎯</div><p class="text-xs text-gray-500 font-bold uppercase">Scoring</p><p class="text-2xl font-black text-white">${stats.scoring}</p></div>
+                <div class="text-center ml-4 border-l border-[#333] pl-6"><div class="text-3xl mb-2">📱</div><p class="text-xs text-gray-500 font-bold uppercase">${tTxt}</p><p class="text-xl font-black text-blue-400">${formatFollowers(player.followers)}</p></div>
             `;
 
             document.getElementById('screen-retirement').classList.remove('hidden');
