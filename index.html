@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoop Legends - Modo Carrera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #050505; 
+            color: #f8fafc; 
+            overflow-x: hidden;
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
+        .no-select { user-select: none; }
+
+        #hoop-canvas {
+            background-color: #0f0f0f;
+            border-radius: 12px;
+            cursor: crosshair;
+            width: 100%;
+            height: 200px;
+            display: block;
+            border: 1px solid #222;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+            20% { opacity: 1; transform: translateY(0) scale(1.1); }
+            80% { opacity: 1; transform: translateY(-10px) scale(1); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+        .toast-anim { animation: floatUp 2s ease-out forwards; }
+
+        @keyframes spinPulse {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        .anim-roulette { animation: spinPulse 0.5s linear infinite; }
+
+        .court-bg {
+            background: linear-gradient(to bottom, #1a1a1a, #0a0a0a);
+            border: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .court-line { border-color: rgba(255, 255, 255, 0.1); border-style: solid; position: absolute; }
+        
+        .pos-btn {
+            position: absolute;
+            width: 40px; height: 40px;
+            background: #111; border: 2px solid #444;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900; color: #888;
+            cursor: pointer; transition: all 0.2s;
+            transform: translate(-50%, -50%);
+        }
+        .pos-btn:hover { border-color: #fff; color: #fff; transform: translate(-50%, -50%) scale(1.1); }
+        .pos-btn.active { background: #fff; color: #000; border-color: #fff; }
+
+        .country-item.active { background-color: #222; border-color: #555; }
+        .hand-btn.active { background-color: #fff; color: #000; }
+        
+        /* Tooltip custom para trofeos */
+        .trophy-icon {
+            position: relative;
+            cursor: help;
+            transition: transform 0.2s;
+        }
+        .trophy-icon:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-2 md:p-6 text-sm">
+
+    <!-- HEADER / LOGO -->
+    <header class="w-full max-w-[1200px] flex items-center justify-center gap-3 py-4 mb-4 border-b border-[#222]">
+        <span class="text-4xl drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]">🏀</span>
+        <h1 class="text-3xl md:text-4xl font-black italic tracking-widest text-white uppercase drop-shadow-md">Hoop Legends</h1>
+    </header>
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div id="app" class="w-full max-w-[1200px] flex flex-col gap-6 mx-auto">
+        
+        <!-- ========================================== -->
+        <!-- PANTALLA 1: CREACIÓN DE IDENTIDAD          -->
+        <!-- ========================================== -->
+        <main id="screen-creation" class="w-full max-w-5xl mx-auto bg-[#0a0a0a] border border-[#222] rounded-3xl p-8 shadow-2xl block">
+            <h2 class="text-3xl font-black mb-6 text-white tracking-tight">Definí tu identidad</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- COLUMNA 1: Identidad (Camiseta) -->
+                <div class="flex flex-col items-center bg-[#111] p-6 rounded-2xl border border-[#222]">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Identidad</h3>
+                    
+                    <svg id="jersey-svg" viewBox="0 0 200 250" class="w-48 h-48 drop-shadow-2xl mb-6">
+                        <path id="jersey-base" d="M60,20 C40,20 30,40 30,40 L40,90 L40,230 C40,240 50,250 60,250 L140,250 C150,250 160,240 160,230 L160,90 L170,40 C170,40 160,20 140,20 C120,20 120,50 100,50 C80,50 80,20 60,20 Z" fill="#e2e8f0" stroke="#334155" stroke-width="3"/>
+                        <path id="jersey-trim" d="M40,90 L45,230 M160,90 L155,230" stroke="#cbd5e1" stroke-width="2" fill="none"/>
+                        <path id="jersey-collar" d="M60,20 C80,20 80,50 100,50 C120,50 120,20 140,20" stroke="#0f172a" stroke-width="4" fill="none"/>
+                        <text id="svg-name" x="100" y="100" font-family="Inter" font-size="16" font-weight="900" fill="#0f172a" text-anchor="middle" letter-spacing="1">APELLIDO</text>
+                        <text id="svg-num" x="100" y="180" font-family="Inter" font-size="70" font-weight="900" fill="#0f172a" text-anchor="middle">10</text>
+                    </svg>
+
+                    <div class="w-full flex gap-3 mb-4">
+                        <div class="flex-1">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Apellido</label>
+                            <input type="text" id="in-name" oninput="updateJersey()" maxlength="10" placeholder="APELLIDO" class="w-full bg-[#050505] border border-[#333] rounded-xl px-3 py-2 text-white text-center focus:outline-none focus:border-white uppercase font-bold text-sm transition-colors">
+                        </div>
+                        <div class="w-20">
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase text-center">Número</label>
+                            <input type="number" id="in-num" oninput="updateJersey()" min="0" max="99" value="10" class="w-full bg-[#050505] border border-[#333] rounded-xl px-3 py-2 text-white text-center focus:outline-none focus:border-white font-bold text-sm">
+                        </div>
+                    </div>
+
+                    <div class="w-full">
+                        <label class="block text-[10px] font-bold text-gray-500 mb-2 uppercase text-center">Mano Hábil</label>
+                        <div class="flex bg-[#050505] border border-[#333] rounded-xl p-1">
+                            <button id="btn-hand-l" onclick="setHand('L')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors">Izquierda</button>
+                            <button id="btn-hand-r" onclick="setHand('R')" class="hand-btn flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-400 transition-colors active">Derecha</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA 2: Nacionalidad -->
+                <div class="flex flex-col bg-[#111] p-6 rounded-2xl border border-[#222]">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Nacionalidad</h3>
+                    <div id="country-list" class="flex-1 overflow-y-auto space-y-2 pr-2">
+                        <!-- Items inyectados via JS -->
+                    </div>
+                </div>
+
+                <!-- COLUMNA 3: Posición (Cancha) -->
+                <div class="flex flex-col bg-[#111] p-6 rounded-2xl border border-[#222]">
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Posición</h3>
+                    
+                    <div class="court-bg w-full h-[320px] rounded-xl mt-auto relative shadow-inner">
+                        <div class="court-line w-[160px] h-[140px] border-2 border-b-0 top-0 left-1/2 transform -translate-x-1/2"></div> 
+                        <div class="court-line w-[80px] h-[140px] border-2 border-b-0 top-0 left-1/2 transform -translate-x-1/2"></div> 
+                        <div class="court-line w-[280px] h-[220px] border-2 border-b-0 rounded-b-full top-0 left-1/2 transform -translate-x-1/2"></div>
+                        <div class="court-line w-12 h-12 border-2 rounded-full top-[140px] left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div> 
+                        
+                        <div onclick="setPos('PG')" id="pos-PG" class="pos-btn active" style="top: 85%; left: 50%;">PG</div>
+                        <div onclick="setPos('SG')" id="pos-SG" class="pos-btn" style="top: 55%; left: 15%;">SG</div>
+                        <div onclick="setPos('SF')" id="pos-SF" class="pos-btn" style="top: 55%; left: 85%;">SF</div>
+                        <div onclick="setPos('PF')" id="pos-PF" class="pos-btn" style="top: 30%; left: 30%;">PF</div>
+                        <div onclick="setPos('C')" id="pos-C" class="pos-btn" style="top: 25%; left: 50%;">C</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: Elegir Primer Equipo -->
+            <div class="mt-8 bg-[#111] p-6 rounded-2xl border border-[#222]">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 text-center">Primer Equipo (Promesas / Tier 1)</h3>
+                <div id="initial-team-list" class="flex flex-wrap justify-center gap-4">
+                    <!-- Items inyectados via JS -->
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-4 border-t border-[#222] pt-6">
+                <button onclick="startGame()" class="bg-white hover:bg-gray-200 text-black font-black py-3 px-8 rounded-xl transition-all text-sm uppercase tracking-wide">
+                    Confirmar Identidad
+                </button>
+            </div>
+        </main>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA 2: HUB PRINCIPAL                  -->
+        <!-- ========================================== -->
+        <div id="main-hub" class="w-full flex flex-col md:flex-row gap-6 hidden">
+            
+            <!-- COLUMNA IZQUIERDA: Tarjeta Jugador y Acciones -->
+            <aside id="panel-left" class="w-full md:w-[45%] flex flex-col gap-4">
+                
+                <div class="bg-[#111] border border-[#222] rounded-3xl p-5 flex flex-col gap-5 relative">
+                    <!-- Fila Superior: OVR y Datos -->
+                    <div class="flex items-start gap-4">
+                        <!-- OVR Shield Dinámico -->
+                        <div id="ovr-shield" class="rounded-2xl w-20 h-24 flex flex-col items-center justify-center shrink-0 shadow-lg relative bg-gradient-to-b from-slate-300 to-slate-500 transition-colors duration-500">
+                            <span class="text-[10px] font-black uppercase tracking-widest mt-1 opacity-80">OVR</span>
+                            <span id="ui-ovr" class="text-5xl font-black leading-none -mt-1 tracking-tighter">70</span>
+                            <div id="ovr-toast" class="absolute -top-6 font-black text-lg hidden z-50"></div>
+                        </div>
+                        
+                        <!-- Header Datos -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span id="ui-country" class="bg-[#222] border border-[#333] px-2 py-0.5 rounded text-[10px] font-bold text-white">🇦🇷 ARG</span>
+                                    <span id="ui-pos" class="bg-blue-900/50 text-blue-400 border border-blue-900 px-2 py-0.5 rounded text-[10px] font-bold">#10 PG</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] text-gray-500 font-bold uppercase block leading-none mb-1">Edad</span>
+                                    <span id="ui-age" class="text-xl font-black text-white leading-none">18</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 mt-3 border-b border-[#222] pb-3">
+                                <img id="ui-team-logo" src="" class="w-8 h-8 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                <span id="ui-team-emoji" class="hidden text-2xl">🏀</span>
+                                <h2 id="ui-team-name" class="text-xl font-black text-white truncate tracking-tight">Club Name</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila Medio: Nombre y Dinero -->
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <p class="text-[10px] text-gray-500 font-bold uppercase">Jugador</p>
+                            <h2 id="ui-name" class="text-2xl font-black text-white truncate leading-none mt-1">APELLIDO</h2>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Cuenta Bancaria</p>
+                            <p id="ui-money" class="text-lg font-bold text-green-400 leading-none">$0</p>
+                        </div>
+                    </div>
+
+                    <!-- Stats y Tienda -->
+                    <div class="grid grid-cols-4 gap-2 mt-2">
+                        <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
+                            <p class="text-[9px] text-gray-500 font-bold mb-1">PJ</p>
+                            <p id="ui-tot-gp" class="text-sm font-bold text-white font-mono">0</p>
+                        </div>
+                        <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
+                            <p class="text-[9px] text-gray-500 font-bold mb-1">PTS</p>
+                            <p id="ui-tot-pts" class="text-sm font-bold text-white font-mono">0</p>
+                        </div>
+                        <div class="bg-[#050505] border border-[#222] rounded-xl p-2 text-center">
+                            <p class="text-[9px] text-gray-500 font-bold mb-1">AST</p>
+                            <p id="ui-tot-ast" class="text-sm font-bold text-white font-mono">0</p>
+                        </div>
+                        <button onclick="openShop()" class="bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-900 rounded-xl p-2 flex flex-col items-center justify-center transition-colors">
+                            <span class="text-lg leading-none mb-1">🛒</span>
+                            <span class="text-[9px] font-bold text-indigo-300 uppercase">Tienda</span>
+                        </button>
+                    </div>
+
+                    <!-- Seguidores -->
+                    <div class="mt-2 flex justify-between items-end px-1">
+                        <span class="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><span class="text-blue-400">📱</span> Seguidores</span>
+                        <span id="ui-followers" class="text-sm font-black text-white leading-none">0</span>
+                    </div>
+
+                    <!-- Química -->
+                    <div class="mt-2 bg-[#050505] border border-[#222] rounded-xl p-3">
+                        <div class="flex justify-between items-end mb-1">
+                            <span class="text-[10px] text-gray-500 font-bold uppercase">Química del Equipo</span>
+                            <span id="ui-playstyle" class="text-xs font-black text-blue-400">Balanceado</span>
+                        </div>
+                        <div class="w-full bg-[#111] rounded-full h-2.5 border border-[#333]">
+                            <div id="ui-chem-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: 50%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Trofeos Individuales y Grupales -->
+                    <div id="ui-trophies" class="flex flex-wrap gap-2 text-xl min-h-[30px] items-center">
+                        <span class="text-gray-700 text-xs italic">Sin títulos aún.</span>
+                    </div>
+                </div>
+
+                <!-- Área Dinámica de Acción -->
+                <div class="bg-[#111] border border-[#222] rounded-3xl p-5 flex-1 flex flex-col relative overflow-hidden">
+                    <div class="mb-4">
+                        <h3 id="action-title" class="text-lg font-black text-white">Simulando...</h3>
+                        <p id="action-desc" class="text-xs text-gray-400 mt-1">Preparando la siguiente etapa.</p>
+                    </div>
+                    
+                    <div id="action-content" class="flex-1 flex flex-col justify-center">
+                        <!-- El contenido inyectado entrará aquí -->
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="forceRetirement()" class="text-xs text-gray-600 hover:text-red-500 transition-colors font-bold uppercase tracking-wider">
+                        Anunciar Retiro
+                    </button>
+                </div>
+            </aside>
+
+            <!-- COLUMNA DERECHA: Historial Cronológico -->
+            <main class="w-full md:w-[55%] flex flex-col h-[85vh]">
+                <div class="flex text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2 px-4">
+                    <div class="w-8">EDAD</div>
+                    <div class="flex-1">CLUB</div>
+                    <div class="w-10 text-center">OVR</div>
+                    <div class="w-10 text-right">PJ</div>
+                    <div class="w-10 text-right">PTS</div>
+                    <div class="w-10 text-right">AST</div>
+                </div>
+                
+                <div id="history-list" class="flex-1 overflow-y-auto bg-[#0a0a0a] border border-[#222] rounded-3xl p-2 space-y-1">
+                    <!-- Filas inyectadas -->
+                </div>
+            </main>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- PANTALLA 3: RETIRO                         -->
+        <!-- ========================================== -->
+        <main id="screen-retirement" class="w-full max-w-4xl mx-auto bg-[#111] border border-[#222] rounded-3xl p-10 shadow-2xl hidden mt-4">
+            <div class="text-center mb-10">
+                <h1 class="text-5xl font-black text-white mb-2 uppercase tracking-tighter">Retiro Oficial</h1>
+                <p class="text-gray-400 text-lg">El fin de una era. Resumen de una leyenda.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Max OVR</p>
+                    <p id="ret-maxovr" class="text-4xl font-black text-slate-300">0</p>
+                </div>
+                <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Temporadas</p>
+                    <p id="ret-seasons" class="text-4xl font-black text-white">0</p>
+                </div>
+                <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Puntos Tot.</p>
+                    <p id="ret-pts" class="text-4xl font-black text-blue-400">0</p>
+                </div>
+                <div class="bg-[#050505] p-4 rounded-xl border border-[#222] text-center">
+                    <p class="text-xs text-gray-500 font-bold uppercase mb-1">Asistencias</p>
+                    <p id="ret-ast" class="text-4xl font-black text-green-400">0</p>
+                </div>
+            </div>
+
+            <div class="bg-[#050505] p-6 rounded-xl border border-[#222] mb-8">
+                <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-[#222] pb-2">Palmarés y Legado</h3>
+                <div class="flex flex-wrap gap-6 justify-center items-end" id="ret-awards-container">
+                    <!-- Los premios se inyectarán aquí -->
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button onclick="location.reload()" class="bg-white hover:bg-gray-200 text-black font-black py-4 px-12 rounded-xl transition-all text-lg uppercase tracking-wide">
+                    Jugar Nueva Carrera
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: TIENDA -->
+    <div id="modal-shop" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#111] border border-[#222] rounded-3xl w-full max-w-xl max-h-[80vh] flex flex-col shadow-2xl">
+            <div class="flex justify-between items-center p-5 border-b border-[#222]">
+                <h2 class="text-xl font-black text-white">Estilo de Vida & Mejoras</h2>
+                <button onclick="closeShopModal()" class="text-gray-500 hover:text-white font-bold text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-5 overflow-y-auto flex-1">
+                <div id="shop-list-modal" class="space-y-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS ---
+        const dbCountries = [
+            { id: 'ARG', name: 'Argentina', flag: '🇦🇷' },
+            { id: 'ESP', name: 'España', flag: '🇪🇸' },
+            { id: 'USA', name: 'Estados Unidos', flag: '🇺🇸' },
+            { id: 'BRA', name: 'Brasil', flag: '🇧🇷' },
+            { id: 'FRA', name: 'Francia', flag: '🇫🇷' },
+            { id: 'SRB', name: 'Serbia', flag: '🇷🇸' },
+            { id: 'GRE', name: 'Grecia', flag: '🇬🇷' }
+        ];
+
+        const dbJerseyColors = {
+            'ARG': { base: '#FFFFFF', trim: '#3B82F6', collar: '#1D4ED8', text: '#1D4ED8' }, 
+            'ESP': { base: '#C60B1E', trim: '#FFC400', collar: '#7A0812', text: '#FFC400' }, 
+            'USA': { base: '#FFFFFF', trim: '#B22234', collar: '#3C3B6E', text: '#3C3B6E' }, 
+            'BRA': { base: '#009739', trim: '#FEDD00', collar: '#002776', text: '#FEDD00' }, 
+            'FRA': { base: '#FFFFFF', trim: '#0055A4', collar: '#EF4135', text: '#0055A4' }, 
+            'SRB': { base: '#C6363C', trim: '#0C4076', collar: '#0C4076', text: '#FFFFFF' }, 
+            'GRE': { base: '#0D5EAF', trim: '#FFFFFF', collar: '#FFFFFF', text: '#FFFFFF' }  
+        };
+
+        const dbTeams = {
+            'ARG': [
+                { name: "Atenas", emoji: "🟢⚪", level: 56, league: "LNB", tier: 1 },
+                { name: "Peñarol", emoji: "🔵⚪", level: 57, league: "LNB", tier: 1 },
+                { name: "Obras", emoji: "🟡⚫", level: 58, league: "LNB", tier: 1 },
+                { name: "Boca Juniors", emoji: "🟦🟨", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Logo_Boca_Juniors.svg/200px-Logo_Boca_Juniors.svg.png", level: 64, league: "LNB", tier: 2 },
+                { name: "Instituto", emoji: "🔴⚪", level: 65, league: "LNB", tier: 2 },
+                { name: "San Lorenzo", emoji: "🔴🔵", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/San_Lorenzo_de_Almagro_logo.svg/150px-San_Lorenzo_de_Almagro_logo.svg.png", level: 66, league: "LNB", tier: 2 },
+                { name: "Quimsa", emoji: "🟥🟦", level: 68, league: "LNB", tier: 2 }
+            ],
+            'ESP': [
+                { name: "Granada", emoji: "🔴⚪", level: 59, league: "Liga Endesa", tier: 1 },
+                { name: "Breogán", emoji: "🔵⚪", level: 60, league: "Liga Endesa", tier: 1 },
+                { name: "Girona", emoji: "🔴⚪", level: 61, league: "Liga Endesa", tier: 1 },
+                { name: "Valencia", emoji: "🟠⚪", level: 75, league: "Liga Endesa", tier: 2 },
+                { name: "Unicaja", emoji: "🟢🟣", level: 77, league: "Liga Endesa", tier: 2 },
+                { name: "Baskonia", emoji: "🔴🔵", level: 80, league: "Liga Endesa", tier: 3 },
+                { name: "Barcelona", emoji: "🔵🔴", logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/150px-FC_Barcelona_%28crest%29.svg.png", level: 86, league: "Liga Endesa", tier: 3 },
+                { name: "Real Madrid", emoji: "👑🤍", logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/150px-Real_Madrid_CF.svg.png", level: 88, league: "Liga Endesa", tier: 3 }
+            ],
+            'USA': [
+                { name: "Texas Legends", emoji: "🤠", level: 61, league: "G-League", tier: 1 },
+                { name: "Maine Celtics", emoji: "🦞", level: 62, league: "G-League", tier: 1 },
+                { name: "South Bay Lakers", emoji: "🌊", level: 63, league: "G-League", tier: 1 },
+                { name: "Ignite", emoji: "🔥", level: 64, league: "G-League", tier: 1 },
+                { name: "Wizards", emoji: "🧙‍♂️", level: 75, league: "NBA", tier: 2 },
+                { name: "Pistons", emoji: "🏎️", level: 76, league: "NBA", tier: 2 },
+                { name: "Hornets", emoji: "🐝", level: 77, league: "NBA", tier: 2 },
+                { name: "Bulls", emoji: "🐂", level: 82, league: "NBA", tier: 3 },
+                { name: "Heat", emoji: "🔥🏀", level: 85, league: "NBA", tier: 3 },
+                { name: "Lakers", emoji: "🟪🟨", logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Los_Angeles_Lakers_logo.svg/150px-Los_Angeles_Lakers_logo.svg.png", level: 89, league: "NBA", tier: 4 },
+                { name: "Warriors", emoji: "🌉", level: 88, league: "NBA", tier: 4 },
+                { name: "Nuggets", emoji: "⛏️", level: 93, league: "NBA", tier: 4 },
+                { name: "Celtics", emoji: "☘️", logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/8/8f/Boston_Celtics.svg/150px-Boston_Celtics.svg.png", level: 94, league: "NBA", tier: 4 }
+            ],
+            'BRA': [
+                { name: "Caxias do Sul", emoji: "🔵⚪", level: 56, league: "NBB", tier: 1 },
+                { name: "Pato Basquete", emoji: "🦆", level: 57, league: "NBB", tier: 1 },
+                { name: "Bauru", emoji: "🐉", level: 64, league: "NBB", tier: 2 },
+                { name: "Minas", emoji: "🔵⚪", level: 66, league: "NBB", tier: 2 },
+                { name: "Franca", emoji: "🔴⚫", level: 68, league: "NBB", tier: 2 },
+                { name: "Flamengo", emoji: "🔴⚫", level: 69, league: "NBB", tier: 2 }
+            ],
+            'FRA': [
+                { name: "Roanne", emoji: "🔵⚪", level: 58, league: "LNB Pro A", tier: 1 },
+                { name: "Blois", emoji: "🟢⚪", level: 59, league: "LNB Pro A", tier: 1 },
+                { name: "Paris", emoji: "🗼", level: 70, league: "LNB Pro A", tier: 2 },
+                { name: "Bourg", emoji: "🔴⚪", level: 71, league: "LNB Pro A", tier: 2 },
+                { name: "ASVEL", emoji: "⚪⚫", level: 76, league: "LNB Pro A", tier: 3 },
+                { name: "Monaco", emoji: "🔴⚪", level: 82, league: "LNB Pro A", tier: 3 }
+            ],
+            'SRB': [
+                { name: "Borac", emoji: "🔴⚪", level: 58, league: "ABA", tier: 1 },
+                { name: "FMP", emoji: "🔴⚪", level: 60, league: "ABA", tier: 1 },
+                { name: "Mega MIS", emoji: "🩷💙", level: 68, league: "ABA", tier: 2 },
+                { name: "Crvena Zvezda", emoji: "🔴⚪", level: 80, league: "ABA", tier: 3 },
+                { name: "Partizan", emoji: "⚫⚪", level: 81, league: "ABA", tier: 3 }
+            ],
+            'GRE': [
+                { name: "Apollon", emoji: "⚫⚪", level: 57, league: "GBL", tier: 1 },
+                { name: "Lavrio", emoji: "🔵🟡", level: 59, league: "GBL", tier: 1 },
+                { name: "PAOK", emoji: "⚫⚪", level: 67, league: "GBL", tier: 2 },
+                { name: "AEK", emoji: "🟡⚫", level: 68, league: "GBL", tier: 2 },
+                { name: "Olympiacos", emoji: "🔴⚪", level: 83, league: "GBL", tier: 3 },
+                { name: "Panathinaikos", emoji: "🟢⚪", level: 84, league: "GBL", tier: 3 }
+            ]
+        };
+
+        let shopItems = [
+            { id: 'zapatillas', name: 'Zapatillas Signature', cost: 80000, effect: 'Leve mejora en cancha (+1 OVR)', type: 'stats', value: 1, owned: false },
+            { id: 'psicologo', name: 'Coach Mental', cost: 150000, effect: 'Amortigua la caída de nivel por edad.', type: 'passive', owned: false },
+            { id: 'nutricionista', name: 'Nutricionista', cost: 250000, effect: 'Mejora físico y previene lesiones.', type: 'passive', owned: false },
+            { id: 'entrenador', name: 'Entrenador Personal', cost: 400000, effect: 'Bonus de progreso joven (+1 OVR extra)', type: 'stats', value: 1, owned: false },
+            { id: 'reloj', name: 'Reloj de Lujo', cost: 600000, effect: 'Puro Status (+100K Seg).', type: 'vanity', owned: false },
+            { id: 'casa', name: 'Mansión', cost: 8000000, effect: 'Puro Status (+1M Seg).', type: 'vanity', owned: false }
+        ];
+
+        let player = {
+            name: 'APELLIDO', num: '10', hand: 'R', countryId: 'ARG', pos: 'PG',
+            age: 18, ovr: 60, maxOvr: 60, chem: 70, retired: false, followers: 1000,
+            parentTeam: null
+        };
+        
+        let stats = {
+            history: [],
+            totals: { pts: 0, ast: 0, gp: 0 },
+            rings: 0, mvp: 0, roty: 0, dpoy: 0, scoring: 0,
+            money: 0
+        };
+
+        let currentTeam = null;
+        let initialSelectedTeam = null;
+        let flowQueue = []; 
+        let mgAnimId = null; 
+
+        function initCreationUI() {
+            const cList = document.getElementById('country-list');
+            dbCountries.forEach(c => {
+                const div = document.createElement('div');
+                div.className = `country-item p-3 rounded-xl border border-transparent cursor-pointer flex gap-3 items-center text-sm font-bold text-gray-300 transition-colors hover:bg-[#222] ${c.id === player.countryId ? 'active' : ''}`;
+                div.onclick = () => selectCountry(c.id, div);
+                div.innerHTML = `<span class="text-xl">${c.flag}</span> <span>${c.name}</span>`;
+                cList.appendChild(div);
+            });
+            updateJerseyColors();
+            renderInitialTeams();
+        }
+
+        function updateJersey() {
+            let name = document.getElementById('in-name').value.toUpperCase() || "APELLIDO";
+            let num = document.getElementById('in-num').value || "10";
+            document.getElementById('svg-name').textContent = name;
+            document.getElementById('svg-num').textContent = num;
+            player.name = name;
+            player.num = num;
+        }
+
+        function updateJerseyColors() {
+            const colors = dbJerseyColors[player.countryId] || dbJerseyColors['ARG'];
+            document.getElementById('jersey-base').setAttribute('fill', colors.base);
+            document.getElementById('jersey-base').setAttribute('stroke', colors.collar);
+            document.getElementById('jersey-trim').setAttribute('stroke', colors.trim);
+            document.getElementById('jersey-collar').setAttribute('stroke', colors.collar);
+            document.getElementById('svg-name').setAttribute('fill', colors.text);
+            document.getElementById('svg-num').setAttribute('fill', colors.text);
+        }
+
+        function setHand(hand) {
+            player.hand = hand;
+            document.getElementById('btn-hand-l').classList.remove('active');
+            document.getElementById('btn-hand-r').classList.remove('active');
+            if(hand === 'L') document.getElementById('btn-hand-l').classList.add('active');
+            else document.getElementById('btn-hand-r').classList.add('active');
+        }
+
+        function selectCountry(id, el) {
+            player.countryId = id;
+            document.querySelectorAll('.country-item').forEach(d => d.classList.remove('active'));
+            el.classList.add('active');
+            updateJerseyColors();
+            renderInitialTeams();
+        }
+
+        function renderInitialTeams() {
+            const tList = document.getElementById('initial-team-list');
+            tList.innerHTML = '';
+            let pool = dbTeams[player.countryId]?.filter(t => t.tier === 1) || [];
+            if (pool.length === 0 && dbTeams[player.countryId]) pool = dbTeams[player.countryId]; // Fallback por si no hay tier 1
+            
+            if (pool.length > 0) {
+                initialSelectedTeam = pool[0];
+                pool.forEach(t => {
+                    const btn = document.createElement('button');
+                    const isActive = t.name === initialSelectedTeam.name;
+                    btn.className = `init-team-btn flex items-center gap-2 px-4 py-2 rounded-xl border ${isActive ? 'border-white bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-105' : 'border-[#333] bg-[#050505] text-gray-400 hover:border-gray-500'} font-bold transition-all`;
+                    btn.onclick = () => selectInitialTeam(t, btn);
+                    
+                    let logoHtml = t.logoUrl 
+                        ? `<img src="${t.logoUrl}" class="w-6 h-6 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span class="hidden text-xl">${t.emoji}</span>`
+                        : `<span class="text-xl">${t.emoji}</span>`;
+                    
+                    btn.innerHTML = `${logoHtml} <span>${t.name}</span>`;
+                    tList.appendChild(btn);
+                });
+            }
+        }
+
+        function selectInitialTeam(team, el) {
+            initialSelectedTeam = team;
+            document.querySelectorAll('.init-team-btn').forEach(b => {
+                b.classList.remove('border-white', 'bg-white', 'text-black', 'shadow-[0_0_15px_rgba(255,255,255,0.3)]', 'scale-105');
+                b.classList.add('border-[#333]', 'bg-[#050505]', 'text-gray-400');
+            });
+            el.classList.remove('border-[#333]', 'bg-[#050505]', 'text-gray-400');
+            el.classList.add('border-white', 'bg-white', 'text-black', 'shadow-[0_0_15px_rgba(255,255,255,0.3)]', 'scale-105');
+        }
+
+        function setPos(pos) {
+            player.pos = pos;
+            document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`pos-${pos}`).classList.add('active');
+        }
+
+        function formatMoney(num) {
+            if (num >= 1000000) return "$" + (num / 1000000).toFixed(2) + "M";
+            if (num >= 1000) return "$" + (num / 1000).toFixed(0) + "K";
+            return "$" + num;
+        }
+
+        function formatFollowers(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+            if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+            return num;
+        }
+
+        function showToast(text, isGood = true) {
+            const toast = document.getElementById('ovr-toast');
+            toast.innerText = text;
+            toast.className = `absolute -top-8 left-1/2 transform -translate-x-1/2 font-black text-xl z-50 toast-anim whitespace-nowrap ${isGood ? 'text-green-400' : 'text-red-500'}`;
+            void toast.offsetWidth; 
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }
+
+        function getOvrTierClasses(ovr) {
+            if (ovr >= 75) return "bg-gradient-to-b from-yellow-300 to-yellow-600 text-yellow-900"; // ORO
+            if (ovr >= 65) return "bg-gradient-to-b from-slate-300 to-slate-500 text-slate-900"; // PLATA
+            return "bg-gradient-to-b from-orange-400 to-orange-800 text-orange-950"; // BRONCE
+        }
+
+        function startGame() {
+            updateJersey(); 
+            
+            player.age = 17; 
+            player.ovr = Math.floor(Math.random() * 4) + 53; 
+            player.maxOvr = player.ovr;
+            player.retired = false;
+
+            currentTeam = initialSelectedTeam;
+
+            document.getElementById('screen-creation').classList.add('hidden');
+            document.getElementById('screen-retirement').classList.add('hidden');
+            document.getElementById('main-hub').classList.remove('hidden');
+            
+            updateUI();
+            startYear(); 
+        }
+
+        function updateUI() {
+            document.getElementById('ui-name').innerText = player.name;
+            document.getElementById('ui-pos').innerText = `#${player.num} ${player.pos}`;
+            let countryObj = dbCountries.find(c => c.id === player.countryId);
+            document.getElementById('ui-country').innerText = `${countryObj.flag} ${countryObj.id}`;
+            document.getElementById('ui-age').innerText = player.age;
+            document.getElementById('ui-ovr').innerText = player.ovr;
+            document.getElementById('ui-money').innerText = formatMoney(stats.money);
+
+            // Colores Dinámicos del OVR (Bronce, Plata, Oro)
+            const ovrShield = document.getElementById('ovr-shield');
+            ovrShield.className = `rounded-2xl w-20 h-24 flex flex-col items-center justify-center shrink-0 shadow-lg relative transition-colors duration-500 ${getOvrTierClasses(player.ovr)}`;
+
+            if (currentTeam) {
+                document.getElementById('ui-team-name').innerText = currentTeam.name;
+                const logoEl = document.getElementById('ui-team-logo');
+                if (currentTeam.logoUrl) {
+                    logoEl.src = currentTeam.logoUrl;
+                    logoEl.style.display = 'block';
+                    document.getElementById('ui-team-emoji').style.display = 'none';
+                } else {
+                    logoEl.style.display = 'none';
+                    document.getElementById('ui-team-emoji').innerText = currentTeam.emoji;
+                    document.getElementById('ui-team-emoji').style.display = 'inline';
+                }
+            }
+
+            document.getElementById('ui-tot-gp').innerText = stats.totals.gp;
+            document.getElementById('ui-tot-pts').innerText = stats.totals.pts;
+            document.getElementById('ui-tot-ast').innerText = stats.totals.ast;
+            document.getElementById('ui-followers').innerText = formatFollowers(player.followers);
+
+            const chemBar = document.getElementById('ui-chem-bar');
+            const playstyle = document.getElementById('ui-playstyle');
+            if (chemBar && playstyle) {
+                chemBar.style.width = player.chem + '%';
+                if (player.chem < 40) {
+                    chemBar.className = "bg-red-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]";
+                    playstyle.innerText = "Egoísta / Tóxico"; playstyle.className = "text-xs font-black text-red-400";
+                } else if (player.chem > 75) {
+                    chemBar.className = "bg-green-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]";
+                    playstyle.innerText = "Líder de Equipo"; playstyle.className = "text-xs font-black text-green-400";
+                } else {
+                    chemBar.className = "bg-blue-500 h-2.5 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]";
+                    playstyle.innerText = "Balanceado"; playstyle.className = "text-xs font-black text-blue-400";
+                }
+            }
+
+            // TROFEOS con Hover (Tooltips)
+            let trHtml = "";
+            for(let i=0; i<stats.rings; i++) trHtml += `<span title="Campeón de Liga" class="trophy-icon">🏆</span>`;
+            for(let i=0; i<stats.mvp; i++) trHtml += `<span title="MVP de Temporada" class="trophy-icon">🥇</span>`;
+            for(let i=0; i<stats.roty; i++) trHtml += `<span title="Novato del Año" class="trophy-icon">🌟</span>`;
+            for(let i=0; i<stats.dpoy; i++) trHtml += `<span title="Defensor del Año" class="trophy-icon">🛡️</span>`;
+            for(let i=0; i<stats.scoring; i++) trHtml += `<span title="Máximo Anotador" class="trophy-icon">🎯</span>`;
+            document.getElementById('ui-trophies').innerHTML = trHtml !== "" ? trHtml : `<span class="text-gray-700 text-xs italic">Sin títulos aún.</span>`;
+        }
+
+        function startYear() {
+            if (player.retired) return; 
+            // Retiro forzoso si es muy mayor, o no tiene nivel
+            if (player.age >= 40 || (player.age >= 36 && player.ovr < 65)) {
+                forceRetirement(); return;
+            }
+            player.age++;
+            flowQueue = [];
+            
+            if(player.chem < 60) player.chem += Math.floor(Math.random() * 10) + 5;
+            if(player.chem > 100) player.chem = 100;
+            
+            updateUI();
+
+            // Cola de eventos
+            if (Math.random() < 0.2) flowQueue.push({ type: 'minigame' });
+            if (Math.random() < 0.35) flowQueue.push({ type: 'decision', data: getMatchEvent() });
+            if (Math.random() < 0.25) flowQueue.push({ type: 'decision', data: getPressEvent() });
+            
+            flowQueue.push({ type: 'decision', data: getLifeEvent() });
+            flowQueue.push({ type: 'market' });
+
+            processFlow();
+        }
+
+        function processFlow() {
+            if (player.retired) return;
+            if (flowQueue.length === 0) {
+                simulateSeason();
+                return;
+            }
+
+            const event = flowQueue[0];
+            const container = document.getElementById('action-content');
+            container.innerHTML = '';
+            
+            if (event.type === 'decision') {
+                document.getElementById('action-title').innerText = event.data.title;
+                document.getElementById('action-desc').innerText = event.data.desc;
+                
+                let html = `<div class="flex flex-col gap-2 w-full mt-2">`;
+                event.data.options.forEach((opt, idx) => {
+                    html += `
+                        <button onclick="handleDecisionClick(${idx})" class="w-full text-left bg-[#050505] hover:bg-[#1a1a1a] border border-[#222] hover:border-[#444] rounded-xl p-3 transition-colors group">
+                            <p class="font-bold text-white text-sm group-hover:text-blue-400 transition-colors mb-1">${opt.text}</p>
+                            <div class="text-[11px] text-gray-400 bg-[#111] p-2 rounded-lg border border-[#222] leading-relaxed">${opt.htmlDesc}</div>
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+                container.innerHTML = html;
+
+            } else if (event.type === 'market') {
+                if (player.parentTeam) {
+                    showToast("Fin de préstamo", true);
+                    currentTeam = player.parentTeam;
+                    player.parentTeam = null;
+                    updateUI();
+                }
+
+                document.getElementById('action-title').innerText = "Mercado de pases";
+                document.getElementById('action-desc').innerText = "Fin de temporada. ¿Qué harás?";
+                
+                let offers = generateMarketOffers();
+                let html = `<div class="flex flex-col gap-2 w-full mt-2">`;
+                offers.forEach((o, idx) => {
+                    let roleStr = o.isRenewal ? "Quedarse en" : (o.isLoan ? "Ir cedido a" : "Fichar por");
+                    let borderClass = o.isRenewal ? 'border-blue-900/40' : (o.isLoan ? 'border-yellow-900/40' : 'border-[#222]');
+                    let parentStr = o.isLoan ? ` <span class="text-yellow-600 font-bold ml-1">(Préstamo)</span>` : '';
+                    
+                    html += `
+                        <div onclick="handleMarket(${idx})" class="flex items-center justify-between bg-[#050505] hover:bg-[#1a1a1a] border ${borderClass} hover:border-gray-400 rounded-xl p-3 cursor-pointer transition-colors group">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] text-gray-500 uppercase font-bold">${roleStr}</span>
+                                <span class="font-black text-white text-sm group-hover:text-blue-400 transition-colors flex items-center gap-1">
+                                    ${o.team.emoji} ${o.team.name}
+                                </span>
+                                <span class="text-[9px] text-gray-600">${o.team.league}${parentStr}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs font-bold text-green-400">${formatMoney(o.salary)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div>`;
+                flowQueue[0].tempOffers = offers;
+                container.innerHTML = html;
+                
+            } else if (event.type === 'minigame') {
+                document.getElementById('action-title').innerText = "Tiro Libre Crucial";
+                document.getElementById('action-desc').innerText = "Mueve el mouse para ángulo. Clic para fijar. Clic para tirar.";
+                
+                container.innerHTML = `
+                    <div class="relative w-full flex flex-col items-center justify-center mt-2 no-select">
+                        <canvas id="hoop-canvas" width="400" height="200"></canvas>
+                        <p id="mg-feedback" class="absolute top-2 text-sm font-black h-5 text-yellow-400 drop-shadow-md z-10"></p>
+                    </div>
+                `;
+                initMinigame(); 
+            }
+        }
+
+        function handleDecisionClick(idx) {
+            const opt = flowQueue[0].data.options[idx];
+            let result = opt.effect(); // Se calculan las probabilidades ahora
+            
+            // Reemplazar contenido con animación de ruleta (Sorteo)
+            const container = document.getElementById('action-content');
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-8 space-y-4">
+                    <div class="text-5xl anim-roulette" id="roulette-icon">🎲</div>
+                    <div class="text-sm font-bold text-yellow-400 uppercase tracking-widest">Sorteando Destino...</div>
+                </div>
+            `;
+            
+            let ticks = 0;
+            const rIcons = ['🍀', '⚠️', '✅', '❌', '🏀', '🔥'];
+            const rInterv = setInterval(() => {
+                ticks++;
+                document.getElementById('roulette-icon').innerText = rIcons[ticks % rIcons.length];
+                
+                if (ticks > 15) { // 1.5 segundos aprox
+                    clearInterval(rInterv);
+                    applyDecisionResult(result);
+                }
+            }, 100);
+        }
+
+        function applyDecisionResult(result) {
+            let msgs = [];
+            let isGood = true;
+
+            if (result.ovr) {
+                player.ovr += result.ovr;
+                if (player.ovr > player.maxOvr) player.maxOvr = player.ovr;
+                msgs.push(result.ovr > 0 ? `+${result.ovr} OVR` : `${result.ovr} OVR`);
+                if(result.ovr < 0) isGood = false;
+            }
+            if (result.chem) {
+                player.chem += result.chem;
+                player.chem = Math.max(0, Math.min(100, player.chem)); 
+                msgs.push(result.chem > 0 ? `+${result.chem} QMC` : `${result.chem} QMC`);
+                if(result.chem < 0) isGood = false;
+            }
+            if (result.money) {
+                stats.money += result.money;
+                msgs.push(result.money > 0 ? `+$${result.money}` : `-$${Math.abs(result.money)}`);
+            }
+            if (result.followers) {
+                player.followers += result.followers;
+                msgs.push(`+${formatFollowers(result.followers)} Seg`);
+            }
+
+            let resultText = msgs.length > 0 ? msgs.join(' | ') : "Neutral";
+            let resultIcon = isGood ? '✅' : '❌';
+            if(msgs.length === 0) resultIcon = '➖';
+
+            const container = document.getElementById('action-content');
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-8 space-y-2">
+                    <div class="text-5xl">${resultIcon}</div>
+                    <div class="text-lg font-black ${isGood ? 'text-green-400' : 'text-red-400'} text-center">${resultText}</div>
+                </div>
+            `;
+
+            if (msgs.length > 0) showToast(resultText, isGood);
+            updateUI();
+            
+            // Pausa breve para leer el resultado antes de pasar al siguiente
+            setTimeout(() => { nextFlow(); }, 1200);
+        }
+
+        function getLifeEvent() {
+            let pools = [
+                {
+                    cond: (p) => true,
+                    title: "Oferta de Patrocinio Dudoso",
+                    desc: "Una marca te ofrece dinero, pero el DT dice que da mala imagen.",
+                    options: [
+                        { text: "Aceptar contrato", htmlDesc: "<span class='text-green-400'>✅ Seguro: +$250K, +10K Seg</span> | <span class='text-red-400'>❌ Seguro: -10 QMC</span> | <span class='text-yellow-500'>⚠️ 30% Riesgo: -1 OVR</span>", 
+                          effect: () => ({ money: 250000, followers: 10000, chem: -10, ovr: Math.random()<0.3 ? -1 : 0 }) },
+                        { text: "Rechazar y entrenar", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +2 QMC</span> | <span class='text-green-400'>🍀 50% Prob: +1 OVR</span>", 
+                          effect: () => ({ chem: 2, ovr: Math.random()<0.5 ? 1 : 0 }) }
+                    ]
+                },
+                {
+                    cond: (p) => p.age < 23,
+                    title: "Salida nocturna de novato",
+                    desc: "Los veteranos te invitan a un club exclusivo. Mañana hay práctica.",
+                    options: [
+                        { text: "Ir y pagar la cuenta", htmlDesc: "<span class='text-red-400'>❌ Seguro: -$50K</span> | <span class='text-green-400'>✅ Seguro: +15 QMC</span> | <span class='text-yellow-500'>⚠️ 40% Riesgo: -1 OVR</span>", 
+                          effect: () => ({ money: -50000, chem: 15, ovr: Math.random()<0.4 ? -1 : 0 }) },
+                        { text: "Quedarse descansando", htmlDesc: "<span class='text-red-400'>❌ Seguro: -5 QMC</span> | <span class='text-green-400'>🍀 60% Prob: +1 OVR</span>", 
+                          effect: () => ({ chem: -5, ovr: Math.random()<0.6 ? 1 : 0 }) }
+                    ]
+                }
+            ];
+            let validPools = pools.filter(p => p.cond(player));
+            return validPools[Math.floor(Math.random() * validPools.length)];
+        }
+
+        function getMatchEvent() {
+            let pools = [
+                {
+                    cond: (p) => true,
+                    title: "Última jugada",
+                    desc: "Perdés por 2. Quedan 5 segundos, te están marcando doble.",
+                    options: [
+                        { text: "Tirar el triple heroico", htmlDesc: "<span class='text-green-400'>🍀 30% Héroe: +2 OVR, +20K Seg</span> | <span class='text-red-400'>⚠️ 70% Villano: -1 OVR, -5 QMC</span>", 
+                          effect: () => Math.random()<0.3 ? {ovr: 2, chem: 5, followers: 20000} : {ovr: -1, chem: -5} },
+                        { text: "Pasar al compañero abierto", htmlDesc: "<span class='text-blue-400'>🍀 80% Asistencia: +1 OVR, +10 QMC</span> | <span class='text-red-400'>⚠️ 20% Falla: -5 QMC</span>", 
+                          effect: () => Math.random()<0.8 ? {ovr: 1, chem: 10} : {chem: -5} }
+                    ]
+                }
+            ];
+            let validPools = pools.filter(p => p.cond(player));
+            return validPools[Math.floor(Math.random() * validPools.length)];
+        }
+
+        function getPressEvent() {
+            let pools = [
+                {
+                    cond: (p) => p.chem < 50,
+                    title: "Rueda de Prensa: Crisis",
+                    desc: "Periodista: 'Se rumorea que el equipo está quebrado. ¿Qué pasa?'",
+                    options: [
+                        { text: "'Es culpa de todos, hay que mejorar unidos'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +15 QMC</span>", effect: () => ({chem: 15}) },
+                        { text: "'Yo hago mi trabajo, pregunten a los demás'", htmlDesc: "<span class='text-red-400'>❌ Seguro: -20 QMC</span> | <span class='text-green-400'>🍀 50% Polémica: +30K Seg</span>", 
+                          effect: () => ({chem: -20, followers: Math.random()<0.5 ? 30000 : 0}) },
+                    ]
+                },
+                {
+                    cond: (p) => true,
+                    title: "Rueda de Prensa",
+                    desc: "Periodista: 'Gran victoria hoy, ¿a quién se la dedicas?'",
+                    options: [
+                        { text: "'A los fans, son los mejores'", htmlDesc: "<span class='text-green-400'>✅ Seguro: +10K Seg</span>", effect: () => ({ followers: 10000 }) },
+                        { text: "'A mis compañeros'", htmlDesc: "<span class='text-blue-400'>✅ Seguro: +10 QMC</span>", effect: () => ({chem: 10}) }
+                    ]
+                }
+            ];
+            let validPools = pools.filter(p => p.cond(player));
+            return validPools[Math.floor(Math.random() * validPools.length)];
+        }
+
+        function calcSalary(team, ovr) {
+            let base = 120000;
+            if (team.league === "NBA") {
+                if(team.tier === 4) base = 8000000;
+                else if(team.tier === 3) base = 5000000;
+                else base = 2500000;
+            } else if (team.league === "G-League") {
+                base = 80000;
+            } else if (team.tier === 3) base = 800000;
+            else if (team.tier === 2) base = 350000;
+            
+            let modifier = Math.max(0.3, 1 + ((ovr - 60) * 0.06));
+            return Math.floor(base * modifier);
+        }
+
+        function getEligibleTiers(ovr) {
+            if (ovr >= 85) return [3, 4];
+            if (ovr >= 75) return [2, 3];
+            if (ovr >= 65) return [1, 2];
+            return [1];
+        }
+
+        function generateMarketOffers() {
+            let offers = [];
+            let all = [];
+            for (let c in dbTeams) { dbTeams[c].forEach(t => { t.countryId = c; all.push(t); }); }
+            let shuffled = all.sort(() => 0.5 - Math.random());
+            
+            if (!currentTeam.countryId) {
+                for (let c in dbTeams) {
+                    if (dbTeams[c].find(t => t.name === currentTeam.name)) { currentTeam.countryId = c; break; }
+                }
+            }
+
+            let diff = player.ovr - currentTeam.level;
+            let canRenew = diff >= -8;
+            let loanOfferTeam = null;
+
+            if (player.age <= 23 && diff < -4) {
+                let lowerTeams = shuffled.filter(t => t.tier < currentTeam.tier || (t.tier === currentTeam.tier && t.level <= currentTeam.level - 5));
+                if (lowerTeams.length > 0) loanOfferTeam = lowerTeams[0];
+            }
+
+            if (loanOfferTeam) offers.push({ team: loanOfferTeam, isLoan: true, isRenewal: false, parent: currentTeam, salary: calcSalary(currentTeam, player.ovr) });
+            else if (canRenew) offers.push({ team: currentTeam, isRenewal: true, isLoan: false, salary: calcSalary(currentTeam, player.ovr) });
+
+            let favorDomestic = player.age <= 22;
+            let eligibleTiers = getEligibleTiers(player.ovr);
+
+            for (let t of shuffled) {
+                if (offers.length >= 3) break;
+                if (offers.find(o => o.team.name === t.name) || !eligibleTiers.includes(t.tier) || t.level < player.ovr - 20 || t.level > player.ovr + 15) continue;
+                if (favorDomestic && eligibleTiers.includes(1) && t.countryId !== currentTeam.countryId && Math.random() < 0.8) continue;
+                offers.push({ team: t, isRenewal: false, isLoan: false, salary: calcSalary(t, player.ovr) });
+            }
+            
+            while(offers.length < 3) {
+                let candidates = shuffled.filter(t => eligibleTiers.includes(t.tier) && !offers.find(o => o.team.name === t.name));
+                if (candidates.length === 0) candidates = shuffled.filter(t => !offers.find(o => o.team.name === t.name));
+                if (candidates.length === 0) break;
+                offers.push({ team: candidates[0], isRenewal: false, isLoan: false, salary: calcSalary(candidates[0], player.ovr) });
+            }
+            return offers;
+        }
+
+        function handleMarket(idx) {
+            const offer = flowQueue[0].tempOffers[idx];
+            if (currentTeam.name !== offer.team.name) {
+                player.chem = 50; 
+                showToast("Nuevo Vestuario: QMC a 50", true);
+            }
+            if (offer.isLoan) player.parentTeam = offer.parent;
+            
+            currentTeam = offer.team;
+            stats.money += offer.salary;
+            updateUI();
+            nextFlow();
+        }
+
+        function nextFlow() {
+            flowQueue.shift();
+            processFlow(); 
+        }
+
+        let canvas, ctx;
+        let mgState = 0; 
+        let mgAngle = -Math.PI / 2;
+        let mgPower = 0;
+        let mgPowerDir = 3.5;
+        let handlersAdded = false;
+
+        function initMinigame() {
+            canvas = document.getElementById('hoop-canvas');
+            if(!canvas) return;
+            
+            // LIMPIEZA TOTAL: Cancelar animaciones previas
+            if(mgAnimId) cancelAnimationFrame(mgAnimId);
+            mgAnimId = null;
+            
+            mgState = 0; 
+            mgPower = 0; 
+            mgAngle = -Math.PI / 2;
+            
+            // Reemplazar el elemento para eliminar cualquier event listener zombie
+            const newCanvas = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(newCanvas, canvas);
+            canvas = newCanvas;
+            ctx = canvas.getContext('2d');
+
+            canvas.addEventListener('mousemove', onMgMove);
+            canvas.addEventListener('mousedown', onMgClick);
+            
+            loopMinigame();
+        }
+        
+        function onMgMove(e) {
+            if(mgState !== 0) return;
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const dx = mouseX - 200; 
+            const dy = mouseY - 170; 
+            let angle = Math.atan2(dy, dx);
+            if(angle > -0.2) angle = -0.2;
+            if(angle < -Math.PI + 0.2) angle = -Math.PI + 0.2;
+            mgAngle = angle;
+        }
+        
+        function onMgClick(e) {
+            if(mgState === 0) mgState = 1; 
+            else if (mgState === 1) {
+                mgState = 2; 
+                shootMinigame();
+            }
+        }
+
+        function drawBackground() {
+            if(!canvas) return;
+            ctx.fillStyle = "#0f0f0f";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ea580c"; ctx.fillRect(180, 40, 40, 5); 
+            ctx.fillStyle = "#334155"; ctx.fillRect(185, 45, 30, 15); 
+            ctx.fillStyle = "#475569"; ctx.fillRect(190, 170, 20, 20);
+            ctx.beginPath(); ctx.arc(200, 160, 8, 0, Math.PI*2); ctx.fill();
+        }
+
+        function loopMinigame() {
+            if (mgState >= 2 || player.retired || !document.getElementById('hoop-canvas')) return;
+            drawBackground();
+
+            ctx.save();
+            ctx.translate(200, 160);
+            ctx.rotate(mgAngle);
+            ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(50, 0);
+            ctx.strokeStyle = mgState === 0 ? "white" : "#444";
+            ctx.lineWidth = 3; ctx.stroke();
+            ctx.restore();
+
+            if (mgState === 1) {
+                mgPower += mgPowerDir;
+                if (mgPower >= 100 || mgPower <= 0) mgPowerDir *= -1;
+                ctx.strokeStyle = "#333"; ctx.lineWidth = 1; ctx.strokeRect(360, 30, 15, 140);
+                ctx.fillStyle = "rgba(74, 222, 128, 0.4)"; ctx.fillRect(361, 55, 13, 25);
+                ctx.fillStyle = "#3b82f6";
+                let pHeight = (mgPower / 100) * 138;
+                ctx.fillRect(361, 169 - pHeight, 13, pHeight);
+            }
+            mgAnimId = requestAnimationFrame(loopMinigame);
+        }
+
+        function shootMinigame() {
+            if(mgAnimId) cancelAnimationFrame(mgAnimId);
+            let fb = document.getElementById('mg-feedback');
+            
+            let powerRatio = mgPower / 100;
+            let destX = 200 + Math.cos(mgAngle) * (200 * powerRatio); 
+            let destY = 160 + Math.sin(mgAngle) * (200 * powerRatio);
+            let ballX = 200, ballY = 160;
+            let frames = 0;
+            
+            const throwAnim = setInterval(() => {
+                frames++;
+                if (!document.getElementById('hoop-canvas') || frames > 60) { 
+                    clearInterval(throwAnim);
+                    const hit = (mgPower >= 40 && mgPower <= 65) && (Math.abs(mgAngle - (-Math.PI / 2)) < 0.5);
+                    if(hit) {
+                        fb.innerText = "¡SWISH! +1 OVR"; fb.className = "absolute top-2 text-sm font-black h-5 text-green-400 drop-shadow-md z-10 w-full text-center";
+                        player.ovr += 1; showToast("+1 OVR", true);
+                    } else {
+                        fb.innerText = "FALLO"; fb.className = "absolute top-2 text-sm font-black h-5 text-red-500 drop-shadow-md z-10 w-full text-center";
+                    }
+                    setTimeout(() => nextFlow(), 1000);
+                    return; 
+                }
+                
+                drawBackground();
+                ballX += (destX - ballX) * 0.1;
+                ballY += (destY - ballY) * 0.1;
+
+                ctx.beginPath(); ctx.arc(ballX, ballY, 6, 0, Math.PI*2);
+                ctx.fillStyle = "#f97316"; ctx.fill();
+            }, 20);
+        }
+
+        function simulateSeason() {
+            let hasPsy = shopItems.find(i=>i.id==='psicologo').owned;
+            let hasTrain = shopItems.find(i=>i.id==='entrenador').owned;
+            let hasNutri = shopItems.find(i=>i.id==='nutricionista').owned;
+
+            // 1. CÁLCULO DE ESTADÍSTICAS Y RENDIMIENTO (con el OVR actual)
+            let relativeLvl = player.ovr - currentTeam.level;
+            let gp = currentTeam.league === 'NBA' ? 82 : 40;
+            
+            if(Math.random() < 0.1 && !hasNutri) gp = Math.floor(gp * (Math.random()*0.4 + 0.4));
+
+            let chemFactor = (player.chem - 50) / 10; 
+            let basePts = 10 + (relativeLvl * 0.4) + (Math.random()*5);
+            let baseAst = 2 + (relativeLvl * 0.15) + (Math.random()*2);
+
+            if (player.chem < 40) { basePts += Math.abs(chemFactor) * 2; baseAst -= Math.abs(chemFactor) * 1.5; } 
+            else if (player.chem > 70) { baseAst += chemFactor * 1.5; basePts -= chemFactor * 0.5; }
+            
+            if(player.pos === 'PG') { baseAst += 4; basePts -= 2; }
+            if(player.pos === 'C') { basePts += 2; baseAst -= 1.5; }
+            if(player.pos === 'SG' || player.pos === 'SF') basePts += 3;
+
+            let ppg = Math.max(1.0, Math.min(45.0, basePts));
+            let apg = Math.max(0.2, Math.min(18.0, baseAst));
+            
+            let tPts = Math.floor(ppg * gp);
+            let tAst = Math.floor(apg * gp);
+
+            stats.totals.pts += tPts;
+            stats.totals.ast += tAst;
+            stats.totals.gp += gp;
+
+            // TROFEOS Y PREMIOS INDIVIDUALES
+            let isChamp = (relativeLvl > 2 && Math.random() < (0.3 + (chemFactor*0.04))) || (relativeLvl > -3 && Math.random() < (0.05 + (chemFactor*0.02)));
+            let isMvp = (ppg > 28 || (ppg>22 && apg>10)) && Math.random() < 0.5;
+            let isRoty = (player.age === 18 || stats.totals.gp === gp) && gp > 15 && ppg > 15 && Math.random() < 0.6;
+            let isDpoy = Math.random() < ((player.ovr - 65) * 0.015);
+            let isScoring = ppg > 30 && Math.random() < 0.7;
+
+            if(isChamp) { stats.rings++; player.followers += 200000; }
+            if(isMvp) { stats.mvp++; player.followers += 500000; }
+            if(isRoty) stats.roty++;
+            if(isDpoy) stats.dpoy++;
+            if(isScoring) stats.scoring++;
+
+            // 2. CRECIMIENTO DE MEDIA (OVR) BASADO EN EDAD + RENDIMIENTO
+            let ovrDelta = 0;
+            
+            // Base por edad
+            if (player.age <= 21) {
+                ovrDelta = Math.floor(Math.random() * 3) + 1; // 1 a 3
+                if(hasTrain) ovrDelta += 1;
+            } else if (player.age <= 25) {
+                ovrDelta = Math.floor(Math.random() * 2); // 0 a 1
+                if(hasTrain) ovrDelta += 1;
+            } else if (player.age >= 31 && player.age <= 33) {
+                ovrDelta = Math.floor(Math.random() * -3); // -2 a 0
+                if(hasNutri || hasPsy) ovrDelta += 1;
+                if(ovrDelta > 0) ovrDelta = 0; 
+            } else if (player.age >= 34) {
+                ovrDelta = Math.floor(Math.random() * -4) - 1; // -4 a -1
+                if(hasPsy) ovrDelta += 1;
+                if(ovrDelta > 0) ovrDelta = 0;
+            } else {
+                ovrDelta = 0; // Prime (26-30) base neutral, depende del rendimiento
+            }
+
+            // Bonus por rendimiento
+            let perfBonus = 0;
+            if (ppg > 20) perfBonus += 1;
+            if (ppg > 28) perfBonus += 1;
+            if (apg > 8) perfBonus += 1;
+            if (isMvp) perfBonus += 1;
+            if (isDpoy) perfBonus += 1;
+            
+            // Proyección estrella (Joven con gran rendimiento)
+            if (player.age <= 23 && perfBonus > 0) perfBonus += 1;
+            
+            // Castigo por mal rendimiento (si no es veterano)
+            if (player.age < 30 && ppg < 8 && apg < 3) {
+                ovrDelta -= 1;
+            }
+
+            ovrDelta += perfBonus;
+
+            // Limitar saltos absurdos de nivel
+            if (ovrDelta > 5) ovrDelta = 5;
+            if (ovrDelta < -5) ovrDelta = -5;
+
+            // 3. APLICAR CAMBIOS
+            player.ovr += ovrDelta;
+            if(player.ovr > 99) player.ovr = 99; // Cap máximo
+            if(player.ovr > player.maxOvr) player.maxOvr = player.ovr;
+            
+            if (player.ovr > 85) player.followers += Math.floor(Math.random() * 500000) + 100000;
+            else if (player.ovr > 75) player.followers += Math.floor(Math.random() * 50000) + 10000;
+            else player.followers += Math.floor(Math.random() * 5000);
+
+            addHistoryRow(gp, tPts, tAst, isChamp, isMvp, isRoty, isDpoy, isScoring);
+            updateUI();
+            
+            document.getElementById('action-title').innerText = "Simulando Temporada...";
+            document.getElementById('action-desc').innerText = "Calculando estadísticas y resultados.";
+            document.getElementById('action-content').innerHTML = `<div class="flex justify-center my-4"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>`;
+
+            setTimeout(() => { startYear(); }, 800); 
+        }
+
+        function addHistoryRow(gp, pts, ast, isChamp, isMvp, isRoty, isDpoy, isScoring) {
+            const list = document.getElementById('history-list');
+            const row = document.createElement('div');
+            row.className = "flex items-center text-xs py-2 px-4 border-b border-[#222] hover:bg-[#1a1a1a] transition-colors";
+            
+            let icons = "";
+            if(isChamp) icons += `<span title="Campeón" class="cursor-help">🏆</span>`;
+            if(isMvp) icons += `<span title="MVP" class="cursor-help">🥇</span>`;
+            if(isRoty) icons += `<span title="ROTY" class="cursor-help">🌟</span>`;
+            if(isDpoy) icons += `<span title="DPOY" class="cursor-help">🛡️</span>`;
+            if(isScoring) icons += `<span title="Scoring Champ" class="cursor-help">🎯</span>`;
+
+            let logoHtml = currentTeam.logoUrl
+                ? `<img src="${currentTeam.logoUrl}" class="w-4 h-4 object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"><span class="hidden">${currentTeam.emoji}</span>`
+                : `<span>${currentTeam.emoji}</span>`;
+
+            row.innerHTML = `
+                <div class="w-8 font-black text-gray-400">${player.age}</div>
+                <div class="flex-1 flex items-center gap-2">
+                    ${logoHtml}
+                    <span class="font-bold text-gray-200 truncate">${currentTeam.name}</span>
+                    <span class="text-[10px] ml-1 flex gap-0.5">${icons}</span>
+                </div>
+                <div class="w-10 text-center"><span class="${getOvrTierClasses(player.ovr).replace('from-', 'from-').replace('text-', 'text-')} bg-gradient-to-b px-1.5 py-0.5 rounded font-black text-[10px] text-gray-900 border border-white/20 shadow-sm">${player.ovr}</span></div>
+                <div class="w-10 text-right font-mono text-gray-500">${gp}</div>
+                <div class="w-10 text-right font-mono text-gray-300 font-bold">${pts}</div>
+                <div class="w-10 text-right font-mono text-gray-500">${ast}</div>
+            `;
+            list.appendChild(row);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        function openShop() { renderShop(); document.getElementById('modal-shop').classList.remove('hidden'); }
+        function closeShopModal() { document.getElementById('modal-shop').classList.add('hidden'); }
+        
+        function renderShop() {
+            const container = document.getElementById('shop-list-modal');
+            container.innerHTML = `<div class="text-right text-sm text-gray-400 mb-4">Balance: <span class="text-green-400 font-bold">${formatMoney(stats.money)}</span></div>`;
+
+            shopItems.forEach(item => {
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between gap-3 bg-[#050505] border border-[#222] rounded-xl p-4";
+                row.innerHTML = `
+                    <div class="flex-1">
+                        <p class="text-sm font-bold text-white">${item.name}</p>
+                        <p class="text-[10px] text-gray-500">${item.effect}</p>
+                    </div>
+                    <button ${item.owned || stats.money < item.cost ? 'disabled' : ''} onclick="buyItem('${item.id}')"
+                        class="text-xs font-black px-4 py-2 rounded-lg transition-colors 
+                        ${item.owned ? 'bg-[#222] text-gray-600 cursor-not-allowed' 
+                        : stats.money < item.cost ? 'bg-[#111] border border-[#333] text-gray-600 cursor-not-allowed' 
+                        : 'bg-white text-black hover:bg-gray-200'}">
+                        ${item.owned ? 'COMPRADO' : formatMoney(item.cost)}
+                    </button>
+                `;
+                container.appendChild(row);
+            });
+        }
+        
+        function buyItem(id) {
+            const item = shopItems.find(i => i.id === id);
+            if (!item || item.owned || stats.money < item.cost) return;
+            
+            stats.money -= item.cost;
+            item.owned = true;
+            if (item.type === 'stats') {
+                player.ovr += item.value;
+                if(player.ovr > player.maxOvr) player.maxOvr = player.ovr;
+            }
+            if (item.type === 'vanity') {
+                let newSegs = id === 'casa' ? 1000000 : 100000;
+                player.followers += newSegs;
+                showToast(`+${formatFollowers(newSegs)} Seg`, true);
+            }
+            renderShop(); updateUI();
+        }
+
+        function forceRetirement() {
+            if (player.retired) return; 
+            player.retired = true;
+            
+            if (mgAnimId) { cancelAnimationFrame(mgAnimId); mgAnimId = null; }
+            mgState = 2; flowQueue = []; canvas = null; closeShopModal();
+
+            document.getElementById('main-hub').classList.add('hidden');
+            document.getElementById('screen-creation').classList.add('hidden');
+            
+            document.getElementById('ret-maxovr').innerText = player.maxOvr;
+            document.getElementById('ret-seasons').innerText = Math.max(0, player.age - 17);
+            document.getElementById('ret-pts').innerText = stats.totals.pts;
+            document.getElementById('ret-ast').innerText = stats.totals.ast;
+
+            // Insertar palmarés y seguidores
+            const awContainer = document.getElementById('ret-awards-container');
+            awContainer.innerHTML = `
+                <div class="text-center"><div class="text-4xl mb-2">🏆</div><p class="text-xs text-gray-500 font-bold uppercase">Anillos</p><p class="text-2xl font-black text-white">${stats.rings}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🥇</div><p class="text-xs text-gray-500 font-bold uppercase">MVPs</p><p class="text-2xl font-black text-white">${stats.mvp}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🌟</div><p class="text-xs text-gray-500 font-bold uppercase">ROTY</p><p class="text-2xl font-black text-white">${stats.roty}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🛡️</div><p class="text-xs text-gray-500 font-bold uppercase">DPOY</p><p class="text-2xl font-black text-white">${stats.dpoy}</p></div>
+                <div class="text-center"><div class="text-4xl mb-2">🎯</div><p class="text-xs text-gray-500 font-bold uppercase">Scoring Ch.</p><p class="text-2xl font-black text-white">${stats.scoring}</p></div>
+                <div class="text-center ml-4 border-l border-[#333] pl-6"><div class="text-3xl mb-2">📱</div><p class="text-xs text-gray-500 font-bold uppercase">Seguidores</p><p class="text-xl font-black text-blue-400">${formatFollowers(player.followers)}</p></div>
+            `;
+
+            document.getElementById('screen-retirement').classList.remove('hidden');
+        }
+
+        initCreationUI();
+    </script>
+</body>
+</html>
